@@ -1,0 +1,149 @@
+[
+  {
+    "category": "infrastructure",
+    "description": "Scaffold Next.js 14 app with TypeScript, ESLint, Prettier, and folder structure",
+    "steps": [
+      "Run: npx create-next-app@latest . --typescript --eslint --app --src-dir --import-alias '@/*' --no-tailwind",
+      "Install prettier and configure .prettierrc",
+      "Create src/features/, src/shared/, src/app/ directories following FSD",
+      "Verify: npm run build passes"
+    ],
+    "passes": false
+  },
+  {
+    "category": "infrastructure",
+    "description": "Install and configure core dependencies: AI SDK, MCP client, ElevenLabs, shadcn/ui",
+    "steps": [
+      "npm install ai @ai-sdk/openai @modelcontextprotocol/sdk elevenlabs",
+      "npm install -D @types/node",
+      "npx shadcn@latest init (select CSS variables, no Tailwind — use vanilla CSS or confirm approach)",
+      "Add OPENAI_API_KEY, ELEVENLABS_API_KEY, MCP_ZAPIER_URL to .env.local and .env.example",
+      "Verify: npm run dev starts without errors"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Build core chat UI: message list, input bar, send button",
+    "steps": [
+      "Create src/features/chat/components/ChatWindow.tsx — scrollable message list",
+      "Create src/features/chat/components/MessageBubble.tsx — user vs assistant styling",
+      "Create src/features/chat/components/ChatInput.tsx — textarea + send button",
+      "Create src/features/chat/hooks/useChat.ts wrapping Vercel AI SDK useChat()",
+      "Wire together in src/app/page.tsx",
+      "Verify: user can type and see echoed messages in UI"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Create /api/chat route with OpenAI streaming via Vercel AI SDK",
+    "steps": [
+      "Create src/app/api/chat/route.ts",
+      "Use streamText() from 'ai' with openai() provider",
+      "Pass messages array from request body",
+      "Return StreamingTextResponse",
+      "Test with curl: streaming tokens appear incrementally",
+      "Verify: chat UI receives streamed response"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Integrate MCP client for Zapier (Google Drive / Sheets tools)",
+    "steps": [
+      "Read MCP SDK docs via context7",
+      "Create src/shared/lib/mcp-client.ts — connect to Zapier MCP endpoint (SSE or stdio)",
+      "Configure MCP_ZAPIER_URL env var pointing to Zapier MCP server URL",
+      "List available tools from MCP server on startup, log them",
+      "Expose tools to AI SDK via experimental_prepareToolCall or tools option in streamText()",
+      "Test: ask LLM 'list my Google Drive files' and verify tool call executes"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Implement Google Sheets row-append tool via MCP/Zapier",
+    "steps": [
+      "Identify Zapier MCP tool for appending rows to a Google Sheet",
+      "Register tool schema in the tools passed to streamText()",
+      "Handle tool result and return it to the LLM for natural-language response",
+      "Test in chat: 'Add row [Name, Age] to my spreadsheet' triggers correct Zapier action",
+      "Show tool call status in UI (e.g. 'calling tool...' indicator)"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Implement Google Drive file read/update via MCP/Zapier",
+    "steps": [
+      "Map Zapier MCP tools for reading file content and updating file content",
+      "Register schemas and handle results in /api/chat route",
+      "Test: 'Read my doc titled X' returns file content in chat",
+      "Test: 'Update doc X to say Y' triggers write tool",
+      "Add error handling for MCP timeouts and auth failures"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Integrate ElevenLabs TTS: play assistant responses as audio",
+    "steps": [
+      "Create /api/tts/route.ts — accepts text, calls ElevenLabs REST API, returns audio stream",
+      "Use ELEVENLABS_API_KEY from env, pick a default voice ID",
+      "Create src/features/chat/hooks/useTTS.ts — fetches audio blob and plays via Web Audio API",
+      "Add speaker icon button on each assistant MessageBubble to trigger TTS",
+      "Verify: clicking speaker plays audible speech"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Add auto-play TTS mode toggle in chat settings",
+    "steps": [
+      "Add global state (zustand or React context) for autoPlayTTS: boolean",
+      "Create src/features/chat/components/ChatSettings.tsx with toggle switch",
+      "In ChatWindow, auto-call useTTS on each new assistant message when flag is true",
+      "Persist setting to localStorage",
+      "Verify: toggle ON → each reply plays; toggle OFF → silent"
+    ],
+    "passes": false
+  },
+  {
+    "category": "styling",
+    "description": "Design premium dark-mode chat UI with micro-animations",
+    "steps": [
+      "Create src/app/globals.css with CSS custom properties: colors, spacing, radius, shadows",
+      "Dark theme by default: deep navy/charcoal background, accent color for user bubbles",
+      "Add smooth scroll-to-bottom animation on new messages",
+      "Animate message bubbles fade-in on arrival (CSS keyframes)",
+      "Typing indicator component (three bouncing dots) shown while LLM streams",
+      "Verify: visually polished, no layout shifts"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Add conversation history: persist chat sessions to localStorage",
+    "steps": [
+      "Create src/features/chat/lib/storage.ts — save/load message arrays keyed by session ID",
+      "Create sidebar component listing past sessions",
+      "On session select, load messages into chat state",
+      "New chat button creates fresh session",
+      "Verify: refresh page, history restored"
+    ],
+    "passes": false
+  },
+  {
+    "category": "infrastructure",
+    "description": "Environment validation, input sanitization, and security hardening",
+    "steps": [
+      "Install zod; validate all env vars at startup via src/shared/lib/env.ts",
+      "Validate and sanitize /api/chat request body with zod schema",
+      "Add rate-limiting middleware to /api/chat (simple in-memory limiter or upstash/ratelimit)",
+      "Ensure .env.local never committed (.gitignore check)",
+      "Run npm audit; fix any high/critical vulnerabilities"
+    ],
+    "passes": false
+  }
+]

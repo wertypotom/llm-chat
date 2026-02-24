@@ -1,0 +1,32 @@
+/* globals.css — design tokens, reset */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  font-family: var(--font-inter, 'Inter', sans-serif);
+  background-color: var(--color-bg);
+  color: var(--color-text);
+}
+
+:root {
+  --color-bg: #0d1117;
+  --color-surface: #161b22;
+  --color-border: #30363d;
+  --color-text: #e6edf3;
+  --color-text-muted: #8b949e;
+  --color-accent: #58a6ff;
+  --color-user-bubble: #1f6feb;
+  --color-assistant-bubble: #21262d;
+  --radius: 12px;
+  --radius-sm: 6px;
+}
