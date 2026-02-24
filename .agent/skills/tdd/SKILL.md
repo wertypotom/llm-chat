@@ -1,16 +1,13 @@
 ---
 name: tdd
-description: >
-  Master testing skill — TDD-first with red-green-refactor loop.
-  Use for ALL testing tasks: unit (Vitest/RTL), integration (MSW), E2E (Playwright).
-  Replaces the old `testing` skill. Core methodology is TDD vertical slices.
+description: TDD-first with red-green-refactor loop. Use for ALL testing tasks: unit (Jest/RTL), integration (MSW), E2E (Playwright). Use when user wants to build features or fix bugs using TDD, mentions "red-green-refactor", wants integration tests, or asks for test-first development.
 ---
 
-# Test-Driven Development (Master Testing Skill)
+# Test-Driven Development
 
 ## Philosophy
 
-**Core principle**: Tests verify behavior through public interfaces, not implementation details. Code can change; tests shouldn't.
+**Core principle**: Tests should verify behavior through public interfaces, not implementation details. Code can change entirely; tests shouldn't.
 
 **Good tests** are integration-style: exercise real code paths through public APIs. They describe _what_ the system does, not _how_. A good test reads like a spec — "user can send a message" tells you exactly what capability exists and survives any refactor.
 
@@ -20,7 +17,16 @@ description: >
 
 ## Anti-Pattern: Horizontal Slices
 
-**DO NOT** write all tests first, then all code.
+**DO NOT write all tests first, then all implementation.** This is "horizontal slicing" - treating RED as "write all tests" and GREEN as "write all code."
+
+This produces **crap tests**:
+
+- Tests written in bulk test _imagined_ behavior, not _actual_ behavior
+- You end up testing the _shape_ of things (data structures, function signatures) rather than user-facing behavior
+- Tests become insensitive to real changes - they pass when behavior breaks, fail when behavior is fine
+- You outrun your headlights, committing to test structure before understanding the implementation
+
+**Correct approach**: Vertical slices via tracer bullets. One test → one implementation → repeat. Each test responds to what you learned from the previous cycle. Because you just wrote the code, you know exactly what behavior matters and how to verify it.
 
 ```
 WRONG (horizontal):
@@ -30,6 +36,7 @@ WRONG (horizontal):
 RIGHT (vertical tracer-bullet):
   RED→GREEN: test1→impl1
   RED→GREEN: test2→impl2
+  RED→GREEN: test3→impl3
   ...
 ```
 
@@ -56,6 +63,8 @@ GREEN: Minimal code to pass → passes
 Proves the path works end-to-end.
 
 ### 3. Incremental Loop
+
+For each remaining behavior:
 
 ```
 RED:   Write next test → fails
@@ -101,32 +110,31 @@ What are you testing?
 
 ---
 
-## Unit Tests (Vitest + React Testing Library)
+## Unit Tests (Jest + React Testing Library)
 
 ### Setup
 
 ```bash
-npm install -D vitest @vitejs/plugin-react jsdom @testing-library/react @testing-library/user-event @testing-library/jest-dom
+npm install -D jest ts-jest jest-environment-jsdom @types/jest @testing-library/react @testing-library/user-event @testing-library/jest-dom
 ```
 
-**`vitest.config.ts`**
+**`jest.config.ts`**
 
 ```ts
-import { defineConfig } from 'vitest/config'
-import react from '@vitejs/plugin-react'
-import path from 'path'
+import type { Config } from 'jest'
 
-export default defineConfig({
-  plugins: [react()],
-  test: {
-    environment: 'jsdom',
-    globals: true,
-    setupFiles: ['./src/shared/test/setup.ts'],
+const config: Config = {
+  preset: 'ts-jest',
+  testEnvironment: 'jest-environment-jsdom',
+  setupFilesAfterEnv: ['<rootDir>/src/shared/test/setup.ts'],
+  testMatch: ['<rootDir>/src/**/*.test.{ts,tsx}'],
+  moduleNameMapper: { '^@/(.*)$': '<rootDir>/src/$1' },
+  transform: {
+    '^.+\\.(ts|tsx)$': ['ts-jest', { tsconfig: { jsx: 'react-jsx' } }],
   },
-  resolve: {
-    alias: { '@': path.resolve(__dirname, './src') },
-  },
-})
+}
+
+export default config
 ```
 
 **`src/shared/test/setup.ts`**
