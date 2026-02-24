@@ -89,15 +89,15 @@ What are you testing?
 └─ Complete user journey         → E2E         (Playwright)
 ```
 
-| What to Test                | Type        | Reference                                                          |
-| --------------------------- | ----------- | ------------------------------------------------------------------ |
-| Component renders correctly | Unit        | [test-components.md](../testing/references/test-components.md)     |
-| Hook returns correct value  | Unit        | [test-hooks.md](../testing/references/test-hooks.md)               |
-| Zustand state updates       | Unit        | [test-stores.md](../testing/references/test-stores.md)             |
-| Utility parses data         | Unit        | [test-functions.md](../testing/references/test-functions.md)       |
-| Component fetches API data  | Integration | [integration-tests.md](../testing/references/integration-tests.md) |
-| Form submits to server      | Integration | [integration-tests.md](../testing/references/integration-tests.md) |
-| Full user flow              | E2E         | [e2e-tests.md](../testing/references/e2e-tests.md)                 |
+| What to Test                | Type        | Reference                                                 |
+| --------------------------- | ----------- | --------------------------------------------------------- |
+| Component renders correctly | Unit        | [test-components.md](./references/test-components.md)     |
+| Hook returns correct value  | Unit        | [test-hooks.md](./references/test-hooks.md)               |
+| Zustand state updates       | Unit        | [test-stores.md](./references/test-stores.md)             |
+| Utility parses data         | Unit        | [test-functions.md](./references/test-functions.md)       |
+| Component fetches API data  | Integration | [integration-tests.md](./references/integration-tests.md) |
+| Form submits to server      | Integration | [integration-tests.md](./references/integration-tests.md) |
+| Full user flow              | E2E         | [e2e-tests.md](./references/e2e-tests.md)                 |
 
 ---
 
@@ -174,13 +174,13 @@ it('increments count', () => {
 
 ## Integration Tests (MSW)
 
-See: [integration-tests.md](../testing/references/integration-tests.md)
+See: [integration-tests.md](./references/integration-tests.md)
 
 ---
 
 ## E2E Tests (Playwright)
 
-See: [e2e-tests.md](../testing/references/e2e-tests.md)
+See: [e2e-tests.md](./references/e2e-tests.md)
 
 ---
 
