@@ -1,0 +1,10 @@
+[2026-02-24] Task 1 COMPLETE: Scaffold Next.js 14 app
+- Manually scaffolded (create-next-app blocked on non-empty dir)
+- package.json: scripts for dev/build/lint/format/typecheck
+- tsconfig.json, next.config.mjs, .eslintrc.json, .prettierrc
+- .gitignore, .env.example (OPENAI_API_KEY, ELEVENLABS_API_KEY, MCP_ZAPIER_URL)
+- src/app: layout.tsx, page.tsx, globals.css (dark theme CSS vars)
+- src/features/chat/index.ts, src/shared/index.ts (FSD stubs)
+- Build: ✓ Compiled, ✓ Linting, ✓ Types
+
+NEXT: Install AI SDK, MCP client, ElevenLabs, shadcn/ui deps (Task 2)

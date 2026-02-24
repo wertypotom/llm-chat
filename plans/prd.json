@@ -8,7 +8,7 @@
       "Create src/features/, src/shared/, src/app/ directories following FSD",
       "Verify: npm run build passes"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "infrastructure",
