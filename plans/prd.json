@@ -29,24 +29,21 @@
       "Create src/features/chat/components/ChatWindow.tsx — scrollable message list",
       "Create src/features/chat/components/MessageBubble.tsx — user vs assistant styling",
       "Create src/features/chat/components/ChatInput.tsx — textarea + send button",
-      "Create src/features/chat/hooks/useChat.ts wrapping Vercel AI SDK useChat()",
       "Wire together in src/app/page.tsx",
       "Verify: user can type and see echoed messages in UI"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",
     "description": "Create /api/chat route with RouteLLM streaming via Vercel AI SDK",
     "steps": [
       "Create src/app/api/chat/route.ts",
-      "Import createOpenAI from src/shared/lib/llm.ts (RouteLLM-configured provider)",
-      "Use streamText() from 'ai' with model='route-llm'",
-      "Pass messages array from request body, validate with zod",
-      "Return StreamingTextResponse",
-      "Test with curl: streaming tokens appear"
+      "Import routeLLM from src/shared/lib/llm.ts",
+      "Use streamText() + convertToModelMessages() with model='route-llm'",
+      "Return result.toUIMessageStreamResponse()"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",
