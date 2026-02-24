@@ -18,3 +18,17 @@ NEXT: Install AI SDK, MCP client, ElevenLabs, shadcn/ui deps (Task 2)
 - Typecheck ✓, Lint ✓, Build ✓
 
 NEXT: Build core chat UI (Task 3) or /api/chat route (Task 4)
+
+[2026-02-24] Tasks 3+4 COMPLETE: Core chat UI + /api/chat streaming route
+- npm install @ai-sdk/react react-markdown zod (AI SDK v6)
+- src/features/chat/types/index.ts — ChatMessage, ChatSession, MessageRole
+- src/features/chat/components/: ChatWindow, MessageBubble, ChatInput, TypingIndicator + CSS modules
+  - ChatWindow: useChat() from @ai-sdk/react v6 (sendMessage API), auto-scroll, error display
+  - MessageBubble: markdown rendering (react-markdown), user/assistant bubble styles, fade-in animation
+  - ChatInput: textarea with Enter-to-send, Shift+Enter newline, send button with spinner
+  - TypingIndicator: three-dot bounce animation shown during streaming
+- src/app/api/chat/route.ts — POST, zod validation, streamText + convertToModelMessages, toUIMessageStreamResponse
+- src/app/page.tsx — wired to ChatWindow
+- Typecheck ✓, Lint ✓, Build ✓
+
+NEXT: MCP client for Zapier integration (Task 5)
