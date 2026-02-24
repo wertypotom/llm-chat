@@ -1,20 +1,16 @@
-import { createOpenAI } from '@ai-sdk/openai'
+import OpenAI from 'openai'
 
 /**
- * RouteLLM provider via Abacus.ai
- * OpenAI-compatible endpoint — just a custom baseURL + API key.
- *
- * Env vars required:
- *   ABACUS_API_KEY   — your Abacus.ai ChatLLM API key
- *   ABACUS_BASE_URL  — https://api.abacus.ai/api/v0/routellm (default below)
+ * Abacus RouteLLM — OpenAI-compatible client.
+ * Per Abacus docs: openai package with custom baseURL.
  */
-export const routeLLM = createOpenAI({
+export const openaiClient = new OpenAI({
   apiKey: process.env.ABACUS_API_KEY ?? '',
-  baseURL: process.env.ABACUS_BASE_URL ?? 'https://api.abacus.ai/api/v0/routellm',
+  baseURL: process.env.ABACUS_BASE_URL ?? 'https://routellm.abacus.ai/v1',
 })
 
-/**
- * Default model identifier used with RouteLLM router.
- * Abacus automatically selects the best underlying LLM.
- */
-export const DEFAULT_MODEL = 'route-llm'
+export const DEFAULT_MODEL = 'gpt-5'
+
+export const SYSTEM_PROMPT =
+  'You are a helpful, intelligent assistant with access to Google Drive and Sheets. ' +
+  'Be concise, conversational, and accurate.'

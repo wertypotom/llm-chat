@@ -1,10 +1,14 @@
-import { streamText, convertToModelMessages } from 'ai'
-import type { UIMessage } from 'ai'
-import { routeLLM, DEFAULT_MODEL } from '@/shared/lib/llm'
+import { openaiClient, DEFAULT_MODEL, SYSTEM_PROMPT } from '@/shared/lib/llm'
 import { z } from 'zod'
+import type { ChatCompletionMessageParam } from 'openai/resources/chat/completions'
 
 const requestSchema = z.object({
-  messages: z.array(z.unknown()),
+  messages: z.array(
+    z.object({
+      role: z.enum(['user', 'assistant', 'system']),
+      content: z.string(),
+    }),
+  ),
 })
 
 export async function POST(req: Request) {
@@ -12,15 +16,38 @@ export async function POST(req: Request) {
     const body = await req.json()
     const { messages } = requestSchema.parse(body)
 
-    const result = streamText({
-      model: routeLLM(DEFAULT_MODEL),
-      system:
-        'You are a helpful, intelligent assistant with access to Google Drive and Sheets. ' +
-        'Be concise, conversational, and accurate.',
-      messages: await convertToModelMessages(messages as UIMessage[]),
+    const allMessages: ChatCompletionMessageParam[] = [
+      { role: 'system', content: SYSTEM_PROMPT },
+      ...messages,
+    ]
+
+    const stream = await openaiClient.chat.completions.create({
+      model: DEFAULT_MODEL,
+      messages: allMessages,
+      stream: true,
     })
 
-    return result.toUIMessageStreamResponse()
+    // Stream text chunks as a plain text stream
+    const encoder = new TextEncoder()
+    const readable = new ReadableStream({
+      async start(controller) {
+        for await (const chunk of stream) {
+          const text = chunk.choices[0]?.delta?.content ?? ''
+          if (text) {
+            controller.enqueue(encoder.encode(text))
+          }
+        }
+        controller.close()
+      },
+    })
+
+    return new Response(readable, {
+      headers: {
+        'Content-Type': 'text/plain; charset=utf-8',
+        'Cache-Control': 'no-cache',
+        'Transfer-Encoding': 'chunked',
+      },
+    })
   } catch (err) {
     if (err instanceof z.ZodError) {
       return Response.json({ error: err.issues }, { status: 400 })

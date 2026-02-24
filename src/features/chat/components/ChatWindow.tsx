@@ -1,27 +1,15 @@
 'use client'
 
-import { useChat } from '@ai-sdk/react'
-import type { UIMessage } from 'ai'
-import { useEffect, useRef, useState, type ChangeEvent, type FormEvent } from 'react'
+import { useEffect, useRef, type ChangeEvent, type FormEvent } from 'react'
+import { useChatStream } from '@/features/chat/hooks/useChatStream'
 import { MessageBubble } from './MessageBubble'
 import { ChatInput } from './ChatInput'
 import { TypingIndicator } from './TypingIndicator'
 import styles from './ChatWindow.module.css'
 
-function getTextContent(m: UIMessage): string {
-  return m.parts
-    .filter((p) => p.type === 'text')
-    .map((p) => (p.type === 'text' ? p.text : ''))
-    .join('')
-}
-
 export function ChatWindow() {
   const bottomRef = useRef<HTMLDivElement>(null)
-  const [input, setInput] = useState('')
-
-  const { messages, sendMessage, status, error } = useChat()
-
-  const isLoading = status === 'streaming' || status === 'submitted'
+  const { messages, input, setInput, isLoading, error, sendMessage } = useChatStream()
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -36,7 +24,7 @@ export function ChatWindow() {
     const text = input.trim()
     if (!text || isLoading) return
     setInput('')
-    await sendMessage({ text })
+    await sendMessage(text)
   }
 
   return (
@@ -48,11 +36,11 @@ export function ChatWindow() {
 
       <div className={styles.messages} role="log" aria-live="polite">
         {messages.length === 0 && <p className={styles.empty}>Send a message to start chatting…</p>}
-        {messages.map((m: UIMessage) => (
-          <MessageBubble key={m.id} role={m.role} content={getTextContent(m)} />
+        {messages.map((m) => (
+          <MessageBubble key={m.id} role={m.role} content={m.content} />
         ))}
-        {isLoading && <TypingIndicator />}
-        {error && <p className={styles.error}>Error: {error.message}</p>}
+        {isLoading && messages.at(-1)?.role !== 'assistant' && <TypingIndicator />}
+        {error && <p className={styles.error}>Error: {error}</p>}
         <div ref={bottomRef} />
       </div>
 
