@@ -1,7 +1,9 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Client } from '@modelcontextprotocol/sdk/client/index.js'
 import { SSEClientTransport } from '@modelcontextprotocol/sdk/client/sse.js'
 import { tool, jsonSchema } from 'ai'
+import type { JSONSchema7 } from 'json-schema'
+
+type AITool = ReturnType<typeof tool<Record<string, unknown>, unknown>>
 
 let mcpClientInstance: Client | null = null
 
@@ -25,18 +27,18 @@ export async function getZapierMCPClient(): Promise<Client> {
 
 export async function getAI_SDKTools(client: Client) {
   const { tools: mcpTools } = await client.listTools()
-  const aiTools: Record<string, any> = {}
+  const aiTools: Record<string, AITool> = {}
 
   for (const mcpTool of mcpTools) {
     // Note: mcp tool names might contain dashes which are fine as keys
     aiTools[mcpTool.name] = tool({
       description: mcpTool.description || '',
-      parameters: jsonSchema(mcpTool.inputSchema as any) as any,
-      execute: async (args: any) => {
+      parameters: jsonSchema(mcpTool.inputSchema as unknown as JSONSchema7),
+      execute: async (args: unknown) => {
         try {
           const result = await client.callTool({
             name: mcpTool.name,
-            arguments: args as any,
+            arguments: args as Record<string, unknown>,
           })
           return result.content
         } catch (error) {
@@ -44,7 +46,7 @@ export async function getAI_SDKTools(client: Client) {
           return [{ type: 'text', text: `Tool execution failed: ${String(error)}` }]
         }
       },
-    } as any)
+    } as unknown as AITool)
   }
 
   return aiTools

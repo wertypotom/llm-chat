@@ -3,8 +3,10 @@ import { getZapierMCPClient, getAI_SDKTools } from '@/shared/lib/mcp-client'
 import { z } from 'zod'
 import { streamText, convertToModelMessages } from 'ai'
 
+import type { UIMessage } from 'ai'
+
 const requestSchema = z.object({
-  messages: z.array(z.any()),
+  messages: z.custom<UIMessage[]>(),
 })
 
 export async function POST(req: Request) {
