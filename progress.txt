@@ -34,3 +34,11 @@ NEXT: Build core chat UI (Task 3) or /api/chat route (Task 4)
 - Typecheck ✓, Lint ✓, Build ✓
 
 NEXT: MCP client for Zapier integration (Task 5)
+
+[2026-02-24] Task 5 COMPLETE: Integrate MCP client for Zapier
+- Implemented getZapierMCPClient using SSEClientTransport
+- Updated route.ts to pass MCP tools to Vercel AI SDK
+- Fixed TypeScript/ESLint compatibility issues
+- Typecheck ✓, Lint ✓
+
+NEXT: Testing/Verifying tools and Task 6 (Specific Google Sheets MCP Tool)

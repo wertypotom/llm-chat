@@ -1,14 +1,10 @@
-import { openaiClient, DEFAULT_MODEL, SYSTEM_PROMPT } from '@/shared/lib/llm'
+import { llmProvider, DEFAULT_MODEL, SYSTEM_PROMPT } from '@/shared/lib/llm'
+import { getZapierMCPClient, getAI_SDKTools } from '@/shared/lib/mcp-client'
 import { z } from 'zod'
-import type { ChatCompletionMessageParam } from 'openai/resources/chat/completions'
+import { streamText, convertToModelMessages } from 'ai'
 
 const requestSchema = z.object({
-  messages: z.array(
-    z.object({
-      role: z.enum(['user', 'assistant', 'system']),
-      content: z.string(),
-    }),
-  ),
+  messages: z.array(z.any()),
 })
 
 export async function POST(req: Request) {
@@ -16,38 +12,23 @@ export async function POST(req: Request) {
     const body = await req.json()
     const { messages } = requestSchema.parse(body)
 
-    const allMessages: ChatCompletionMessageParam[] = [
-      { role: 'system', content: SYSTEM_PROMPT },
-      ...messages,
-    ]
+    let tools = {}
+    try {
+      const client = await getZapierMCPClient()
+      tools = await getAI_SDKTools(client)
+    } catch (e) {
+      console.error('Failed to initialize MCP tools:', e)
+      // gracefully fail and continue without tools
+    }
 
-    const stream = await openaiClient.chat.completions.create({
-      model: DEFAULT_MODEL,
-      messages: allMessages,
-      stream: true,
+    const result = await streamText({
+      model: llmProvider(DEFAULT_MODEL),
+      system: SYSTEM_PROMPT,
+      messages: await convertToModelMessages(messages),
+      tools: Object.keys(tools).length > 0 ? tools : undefined,
     })
 
-    // Stream text chunks as a plain text stream
-    const encoder = new TextEncoder()
-    const readable = new ReadableStream({
-      async start(controller) {
-        for await (const chunk of stream) {
-          const text = chunk.choices[0]?.delta?.content ?? ''
-          if (text) {
-            controller.enqueue(encoder.encode(text))
-          }
-        }
-        controller.close()
-      },
-    })
-
-    return new Response(readable, {
-      headers: {
-        'Content-Type': 'text/plain; charset=utf-8',
-        'Cache-Control': 'no-cache',
-        'Transfer-Encoding': 'chunked',
-      },
-    })
+    return result.toTextStreamResponse()
   } catch (err) {
     if (err instanceof z.ZodError) {
       return Response.json({ error: err.issues }, { status: 400 })

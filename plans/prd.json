@@ -56,7 +56,7 @@
       "Expose tools to AI SDK via experimental_prepareToolCall or tools option in streamText()",
       "Test: ask LLM 'list my Google Drive files' and verify tool call executes"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",
