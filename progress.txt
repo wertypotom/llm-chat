@@ -8,3 +8,13 @@
 - Build: ✓ Compiled, ✓ Linting, ✓ Types
 
 NEXT: Install AI SDK, MCP client, ElevenLabs, shadcn/ui deps (Task 2)
+
+[2026-02-24] Task 2 COMPLETE: Core deps + RouteLLM provider
+- npm install ai @ai-sdk/openai @modelcontextprotocol/sdk
+- src/shared/lib/llm.ts — createOpenAI() pointed at Abacus.ai RouteLLM
+  - ABACUS_API_KEY + ABACUS_BASE_URL env vars (defaults to https://api.abacus.ai/api/v0/routellm)
+  - DEFAULT_MODEL = 'route-llm' (auto-routed by Abacus)
+- .env.local + .env.example updated (removed OPENAI_API_KEY, added ABACUS_*)
+- Typecheck ✓, Lint ✓, Build ✓
+
+NEXT: Build core chat UI (Task 3) or /api/chat route (Task 4)

@@ -12,15 +12,15 @@
   },
   {
     "category": "infrastructure",
-    "description": "Install and configure core dependencies: AI SDK, MCP client, ElevenLabs, shadcn/ui",
+    "description": "Install and configure core dependencies: AI SDK (RouteLLM/Abacus.ai), MCP client, ElevenLabs",
     "steps": [
-      "npm install ai @ai-sdk/openai @modelcontextprotocol/sdk elevenlabs",
-      "npm install -D @types/node",
-      "npx shadcn@latest init (select CSS variables, no Tailwind — use vanilla CSS or confirm approach)",
-      "Add OPENAI_API_KEY, ELEVENLABS_API_KEY, MCP_ZAPIER_URL to .env.local and .env.example",
+      "npm install ai @ai-sdk/openai @modelcontextprotocol/sdk",
+      "RouteLLM uses OpenAI-compatible API: set ABACUS_API_KEY + ABACUS_BASE_URL=https://api.abacus.ai/api/v0/routellm in .env.local",
+      "Add ELEVENLABS_API_KEY, MCP_ZAPIER_URL to .env.local and .env.example",
+      "Create src/shared/lib/llm.ts — createOpenAI() with custom baseURL pointing to Abacus RouteLLM endpoint",
       "Verify: npm run dev starts without errors"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",
@@ -37,14 +37,14 @@
   },
   {
     "category": "functional",
-    "description": "Create /api/chat route with OpenAI streaming via Vercel AI SDK",
+    "description": "Create /api/chat route with RouteLLM streaming via Vercel AI SDK",
     "steps": [
       "Create src/app/api/chat/route.ts",
-      "Use streamText() from 'ai' with openai() provider",
-      "Pass messages array from request body",
+      "Import createOpenAI from src/shared/lib/llm.ts (RouteLLM-configured provider)",
+      "Use streamText() from 'ai' with model='route-llm'",
+      "Pass messages array from request body, validate with zod",
       "Return StreamingTextResponse",
-      "Test with curl: streaming tokens appear incrementally",
-      "Verify: chat UI receives streamed response"
+      "Test with curl: streaming tokens appear"
     ],
     "passes": false
   },
