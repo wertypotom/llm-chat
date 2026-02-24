@@ -1,4 +1,6 @@
-[2026-02-24] Task 1 COMPLETE: Scaffold Next.js 14 app
+TESTS_ENABLED=true
+
+
 - Manually scaffolded (create-next-app blocked on non-empty dir)
 - package.json: scripts for dev/build/lint/format/typecheck
 - tsconfig.json, next.config.mjs, .eslintrc.json, .prettierrc
