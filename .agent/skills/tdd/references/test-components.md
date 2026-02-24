@@ -1,30 +1,18 @@
 ---
 name: test-components
-description: Guide and patterns for unit testing React components using React Testing Library with either Vitest or Jest. Use this when writing tests for UI components.
+description: Guide and patterns for unit testing React components using React Testing Library with Jest. Use this when writing tests for UI components.
 ---
 
 # Component Testing Guide
 
 Testing isolated React components using React Testing Library.
 
-## Universal Imports (Jest vs Vitest)
-
-Depending on the project's test runner, your imports will differ slightly:
-
-**For Vitest:**
+## Imports
 
 ```typescript
-import { describe, it, expect, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
-```
-
-**For Jest:**
-
-```typescript
-// describe, it, expect, jest are globally available
-import { render, screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+// describe, it, expect, jest are globally available (configured in jest.config.js)
+import { render, screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 ```
 
 ---
@@ -48,7 +36,7 @@ Always use `@testing-library/user-event` over `fireEvent` as it simulates real b
 ```typescript
 it('handles user clicks', async () => {
   const user = userEvent.setup(); // Setup before render
-  const onClickMock = typeof vi !== 'undefined' ? vi.fn() : jest.fn();
+  const onClickMock = jest.fn();
 
   render(<Button onClick={onClickMock}>Submit</Button>);
 

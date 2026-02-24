@@ -93,7 +93,7 @@ After all GREEN: extract duplication, deepen modules, apply SOLID. **Never refac
 
 ```
 What are you testing?
-├─ Isolated component/hook/util → Unit Test   (Vitest + RTL)
+├─ Isolated component/hook/util → Unit Test   (Jest + RTL)
 ├─ API interaction / data fetch  → Integration (MSW)
 └─ Complete user journey         → E2E         (Playwright)
 ```

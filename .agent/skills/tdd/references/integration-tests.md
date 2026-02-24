@@ -5,7 +5,7 @@ Testing API interactions and component-server integration.
 ## Tools
 
 - **MSW (Mock Service Worker)** - API mocking
-- **Vitest** - Test runner
+- **Jest** - Test runner
 - **React Testing Library** - Component testing with API
 
 ## Setup
@@ -24,7 +24,7 @@ s
 Create `mocks/handlers.ts`:
 
 ```typescript
-import { http, HttpResponse } from 'msw';
+import { http, HttpResponse } from 'msw'
 
 export const handlers = [
   // GET request
@@ -32,28 +32,28 @@ export const handlers = [
     return HttpResponse.json([
       { id: 1, title: 'Software Engineer' },
       { id: 2, title: 'Product Manager' },
-    ]);
+    ])
   }),
 
   // POST request
   http.post('/api/jobs', async ({ request }) => {
-    const body = await request.json();
+    const body = await request.json()
     return HttpResponse.json({
       id: 3,
       ...body,
       createdAt: new Date().toISOString(),
-    });
+    })
   }),
 
   // Error response
   http.get('/api/jobs/:id', ({ params }) => {
-    const { id } = params;
+    const { id } = params
     if (id === '999') {
-      return new HttpResponse(null, { status: 404 });
+      return new HttpResponse(null, { status: 404 })
     }
-    return HttpResponse.json({ id, title: 'Job Title' });
+    return HttpResponse.json({ id, title: 'Job Title' })
   }),
-];
+]
 ```
 
 ### Create Server
@@ -61,10 +61,10 @@ export const handlers = [
 Create `mocks/server.ts`:
 
 ```typescript
-import { setupServer } from 'msw/node';
-import { handlers } from './handlers';
+import { setupServer } from 'msw/node'
+import { handlers } from './handlers'
 
-export const server = setupServer(...handlers);
+export const server = setupServer(...handlers)
 ```
 
 ### Test Setup
@@ -72,17 +72,17 @@ export const server = setupServer(...handlers);
 Create test setup file:
 
 ```typescript
-import { beforeAll, afterEach, afterAll } from 'vitest';
-import { server } from './mocks/server';
+// describe, it, expect, beforeAll, afterEach, afterAll are globally available
+import { server } from './mocks/server'
 
 // Start server before all tests
-beforeAll(() => server.listen());
+beforeAll(() => server.listen())
 
 // Reset handlers after each test
-afterEach(() => server.resetHandlers());
+afterEach(() => server.resetHandlers())
 
 // Clean up after all tests
-afterAll(() => server.close());
+afterAll(() => server.close())
 ```
 
 ## Testing Patterns
@@ -255,28 +255,28 @@ it('sends correct data to API', async () => {
 ```typescript
 server.use(
   http.get('/api/jobs', ({ request }) => {
-    const authHeader = request.headers.get('Authorization');
+    const authHeader = request.headers.get('Authorization')
 
     if (!authHeader) {
-      return new HttpResponse(null, { status: 401 });
+      return new HttpResponse(null, { status: 401 })
     }
 
-    return HttpResponse.json([{ id: 1, title: 'Job' }]);
-  })
-);
+    return HttpResponse.json([{ id: 1, title: 'Job' }])
+  }),
+)
 ```
 
 ## Running Tests
 
 ```bash
-# Run integration tests
-npx vitest --run integration
+# Run all tests (including integration)
+npm run test:run
 
 # Watch mode
-npx vitest integration
+npm run test
 
 # With coverage
-npx vitest --coverage integration
+npx jest --coverage
 ```
 
 ## Best Practices

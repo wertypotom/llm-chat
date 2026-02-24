@@ -1,26 +1,17 @@
 ---
 name: test-hooks
-description: Guide and patterns for unit testing custom React hooks using @testing-library/react with either Vitest or Jest. Use this when writing tests for hooks.
+description: Guide and patterns for unit testing custom React hooks using @testing-library/react with Jest. Use this when writing tests for hooks.
 ---
 
 # Hook Testing Guide
 
 Testing isolated custom React hooks using `@testing-library/react`'s `renderHook`.
 
-## Universal Imports (Jest vs Vitest)
-
-**For Vitest:**
+## Imports
 
 ```typescript
-import { describe, it, expect, vi } from 'vitest';
-import { renderHook, act, waitFor } from '@testing-library/react';
-```
-
-**For Jest:**
-
-```typescript
-// describe, it, expect, jest are globally available
-import { renderHook, act, waitFor } from '@testing-library/react';
+// describe, it, expect, jest are globally available (configured in jest.config.js)
+import { renderHook, act, waitFor } from '@testing-library/react'
 ```
 
 ---
@@ -32,20 +23,20 @@ Use `act()` whenever your test code directly calls a hook function that causes a
 ```typescript
 describe('useCounter', () => {
   it('increments counter', () => {
-    const { result } = renderHook(() => useCounter(0));
+    const { result } = renderHook(() => useCounter(0))
 
     // Initial state
-    expect(result.current.count).toBe(0);
+    expect(result.current.count).toBe(0)
 
     // Update state wrapped in act()
     act(() => {
-      result.current.increment();
-    });
+      result.current.increment()
+    })
 
     // Verify new state
-    expect(result.current.count).toBe(1);
-  });
-});
+    expect(result.current.count).toBe(1)
+  })
+})
 ```
 
 ## 2. Hooks that depend on Context (Wrappers)
