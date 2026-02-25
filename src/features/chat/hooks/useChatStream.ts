@@ -49,12 +49,23 @@ export function useChatStream(): UseChatStreamReturn {
           content: m.content,
         }))
 
+        // Show "using tools" indicator while waiting for multi-step completion
+        const thinkingTimer = setTimeout(() => {
+          setMessages((prev) =>
+            prev.map((m) =>
+              m.id === assistantId && !m.content ? { ...m, content: '⏳ Using tools...' } : m,
+            ),
+          )
+        }, 3000)
+
         const res = await fetch('/api/chat', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ messages: history }),
           signal: abortRef.current.signal,
         })
+
+        clearTimeout(thinkingTimer)
 
         if (!res.ok || !res.body) {
           const body = await res.json().catch(() => ({ error: 'Unknown error' }))
@@ -64,12 +75,27 @@ export function useChatStream(): UseChatStreamReturn {
         const reader = res.body.getReader()
         const decoder = new TextDecoder()
 
+        let firstChunk = true
         while (true) {
           const { done, value } = await reader.read()
           if (done) break
           const chunk = decoder.decode(value, { stream: true })
           setMessages((prev) =>
-            prev.map((m) => (m.id === assistantId ? { ...m, content: m.content + chunk } : m)),
+            prev.map((m) => {
+              if (m.id !== assistantId) return m
+              // Clear the thinking placeholder on first real content
+              const base = firstChunk ? '' : m.content
+              firstChunk = false
+              return { ...m, content: base + chunk }
+            }),
+          )
+        }
+
+        // If stream ended with no text content (all steps were tool calls),
+        // replace placeholder with a generic done message
+        if (firstChunk) {
+          setMessages((prev) =>
+            prev.map((m) => (m.id === assistantId ? { ...m, content: '✅ Done.' } : m)),
           )
         }
       } catch (err) {

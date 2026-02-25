@@ -1,12 +1,14 @@
 import { llmProvider, DEFAULT_MODEL, SYSTEM_PROMPT } from '@/shared/lib/llm'
 import { getZapierMCPClient, getAI_SDKTools } from '@/shared/lib/mcp-client'
 import { z } from 'zod'
-import { streamText, convertToModelMessages } from 'ai'
+import { streamText, stepCountIs } from 'ai'
+import type { ModelMessage } from 'ai'
 
-import type { UIMessage } from 'ai'
+// Allow long multi-step Abacus calls (each LLM step can take 20-50s)
+export const maxDuration = 300
 
 const requestSchema = z.object({
-  messages: z.custom<UIMessage[]>(),
+  messages: z.array(z.record(z.string(), z.unknown())),
 })
 
 export async function POST(req: Request) {
@@ -17,17 +19,20 @@ export async function POST(req: Request) {
     let tools = {}
     try {
       const client = await getZapierMCPClient()
-      tools = await getAI_SDKTools(client)
+      // Extract last user message — used as Zapier instructions fallback context
+      const lastUserMsg = [...messages].reverse().find((m) => m['role'] === 'user')
+      const userIntent = (lastUserMsg?.['content'] as string) ?? ''
+      tools = await getAI_SDKTools(client, userIntent)
     } catch (e) {
       console.error('Failed to initialize MCP tools:', e)
-      // gracefully fail and continue without tools
     }
 
     const result = await streamText({
       model: llmProvider(DEFAULT_MODEL),
       system: SYSTEM_PROMPT,
-      messages: await convertToModelMessages(messages),
+      messages: messages as ModelMessage[],
       tools: Object.keys(tools).length > 0 ? tools : undefined,
+      stopWhen: stepCountIs(3),
     })
 
     return result.toTextStreamResponse()
