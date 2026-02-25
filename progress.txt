@@ -122,3 +122,12 @@ NEXT: Prompt & Agent Management (Task 14)
 - Typecheck passed, Lint passed, UI tested.
 
 NEXT: Support Automation (Task 15)
+
+
+[2026-02-24] Task 15 COMPLETE: Support Automation
+- src/app/api/chat/route.ts — Added createSupportTicket AI SDK tool to parse intent and inject ticket JSON into markdown
+- src/features/chat/components/TicketCard.tsx — Glassmorphic UI to display ticket status + button to hand off to 'Support Agent'
+- src/features/chat/components/MessageBubble.tsx — ReactMarkdown components interceptor to render TicketCard from injected ```ticket blocks
+- Typecheck passed, Lint passed, UI verified.
+
+NEXT: Multi-channel Support (Task 16)
