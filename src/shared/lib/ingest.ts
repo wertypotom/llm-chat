@@ -3,6 +3,7 @@ import {
   VectorStoreIndex,
   storageContextFromDefaults,
   SentenceSplitter,
+  Settings,
 } from 'llamaindex'
 import { PDFReader } from '@llamaindex/readers/pdf'
 import { vectorStore } from './vector-store'
@@ -44,18 +45,19 @@ export async function ingestDocument(fileBuffer: Buffer, fileName: string) {
 
     console.log(`Parsed ${documents.length} logical documents/pages from PDF. Creating index...`)
 
-    // 2. Configure Chunking Strategy
-    // Default splits into chunks of 1024 tokens with 200 token overlap
-    const textSplitter = new SentenceSplitter({ chunkSize: 1024, chunkOverlap: 200 })
+    // 2. Configure Chunking Strategy (used automatically by fromDocuments)
+    // We explicitly set this in the Settings object so it's globally applied to the indexer
+    Settings.chunkSize = 1024
+    Settings.chunkOverlap = 200
 
     // 3. Connect to Supabase Storage Context
     const storageContext = await storageContextFromDefaults({ vectorStore })
 
     // 4. Create Index (which automatically handles chunking, embedding, and DB insertion)
-    const index = await VectorStoreIndex.fromDocuments(documents, {
+    // We await this operation but don't need to store the resulting 'index' object since
+    // the goal is just to insert the embeddings into Supabase.
+    await VectorStoreIndex.fromDocuments(documents, {
       storageContext,
-      // We explicitly pass the textSplitter to the document parsing pipeline
-      // in newer LlamaIndex versions, it can also be configured globally in Settings.nodeParser
     })
 
     console.log(`Successfully ingested ${fileName} into Supabase vector store.`)
