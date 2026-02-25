@@ -1,4 +1,8 @@
 import { SupabaseVectorStore } from '@llamaindex/supabase'
+import { configureLlamaIndex } from './rag-config'
+
+// Must configure LlamaIndex embeddings BEFORE instantiating VectorStores
+configureLlamaIndex()
 
 // Ensure we have the required environment variables
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
