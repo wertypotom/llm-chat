@@ -4,7 +4,9 @@ import type { FC } from 'react'
 import type { MessageRole } from '@/features/chat/types'
 import ReactMarkdown, { Components } from 'react-markdown'
 import { useTTS } from '@/features/chat/hooks/useTTS'
+import { useAgents } from '@/features/chat/hooks/useAgents'
 import { TicketCard } from './TicketCard'
+import { Visualizer } from './Visualizer'
 import styles from './MessageBubble.module.css'
 
 interface Props {
@@ -15,7 +17,8 @@ interface Props {
 
 export const MessageBubble: FC<Props> = ({ role, content, onConnectSupport }) => {
   const isUser = role === 'user'
-  const { speak, isPlaying, stop } = useTTS()
+  const { speak, isPlaying, stop, analyser } = useTTS()
+  const { activeAgent } = useAgents()
 
   const components: Components = {
     code({ className, children, ...props }) {
@@ -85,14 +88,17 @@ export const MessageBubble: FC<Props> = ({ role, content, onConnectSupport }) =>
       <div className={`${styles.bubble} ${isUser ? styles.bubbleUser : styles.bubbleAssistant}`}>
         <ReactMarkdown components={components}>{content}</ReactMarkdown>
         {!isUser && content && (
-          <button
-            className={`${styles.ttsBtn} ${isPlaying ? styles.ttsBtnActive : ''}`}
-            onClick={() => (isPlaying ? stop() : speak(content))}
-            title={isPlaying ? 'Stop' : 'Play audio'}
-            aria-label={isPlaying ? 'Stop audio' : 'Play audio'}
-          >
-            {isPlaying ? '⏹' : '🔊'}
-          </button>
+          <div style={{ display: 'flex', alignItems: 'center', marginTop: '8px' }}>
+            <button
+              className={`${styles.ttsBtn} ${isPlaying ? styles.ttsBtnActive : ''}`}
+              onClick={() => (isPlaying ? stop() : speak(content, activeAgent?.voiceId))}
+              title={isPlaying ? 'Stop' : 'Play audio'}
+              aria-label={isPlaying ? 'Stop audio' : 'Play audio'}
+            >
+              {isPlaying ? '⏹' : '🔊'}
+            </button>
+            <Visualizer analyser={analyser} isPlaying={isPlaying} />
+          </div>
         )}
       </div>
     </div>

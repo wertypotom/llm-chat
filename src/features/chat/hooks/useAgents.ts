@@ -26,6 +26,7 @@ export function useAgents() {
             name: row.name,
             systemPrompt: row.system_prompt,
             isHidden: row.is_hidden,
+            voiceId: row.voice_id,
           }))
           setCustomAgents(loadedAgents)
         }
@@ -65,6 +66,7 @@ export function useAgents() {
         name: agent.name,
         system_prompt: agent.systemPrompt,
         is_hidden: agent.isHidden || false,
+        voice_id: agent.voiceId,
       })
       if (error) console.error(error)
     },
@@ -86,6 +88,7 @@ export function useAgents() {
             name: agentToUpdate.name,
             system_prompt: agentToUpdate.systemPrompt,
             is_hidden: agentToUpdate.isHidden || false,
+            voice_id: agentToUpdate.voiceId,
           },
           { onConflict: 'id' },
         )

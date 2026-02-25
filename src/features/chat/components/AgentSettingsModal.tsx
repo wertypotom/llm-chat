@@ -16,33 +16,38 @@ export function AgentSettingsModal({ customAgents, onAdd, onUpdate, onDelete, on
   const [editingId, setEditingId] = useState<string | null>(null)
   const [name, setName] = useState('')
   const [prompt, setPrompt] = useState('')
+  const [voiceId, setVoiceId] = useState('')
 
   const handleEdit = (a: Agent) => {
     setEditingId(a.id)
     setName(a.name)
     setPrompt(a.systemPrompt ?? '')
+    setVoiceId(a.voiceId ?? '')
   }
 
   const handleSave = () => {
     if (!name.trim()) return
     if (editingId) {
-      onUpdate(editingId, { name, systemPrompt: prompt })
+      onUpdate(editingId, { name, systemPrompt: prompt, voiceId: voiceId || undefined })
     } else {
       onAdd({
         id: crypto.randomUUID(),
         name,
         systemPrompt: prompt,
+        voiceId: voiceId || undefined,
       })
     }
     setEditingId(null)
     setName('')
     setPrompt('')
+    setVoiceId('')
   }
 
   const handleCancelEdit = () => {
     setEditingId(null)
     setName('')
     setPrompt('')
+    setVoiceId('')
   }
 
   return (
@@ -97,6 +102,15 @@ export function AgentSettingsModal({ customAgents, onAdd, onUpdate, onDelete, on
                 placeholder="You are an expert at..."
                 rows={5}
               />
+            </div>
+            <div className={styles.field}>
+              <label>Voice</label>
+              <select value={voiceId} onChange={(e) => setVoiceId(e.target.value)}>
+                <option value="">Default (Rachel)</option>
+                <option value="21m00Tcm4TlvDq8ikWAM">Rachel (Female, Standard)</option>
+                <option value="2EiwWnXFnvU5JabPnv8n">Clyde (Male, Standard)</option>
+                <option value="AZnzlk1XvdvUeBnXmlld">Domi (Female, Strong)</option>
+              </select>
             </div>
             <div className={styles.formActions}>
               {editingId && <button onClick={handleCancelEdit}>Cancel</button>}

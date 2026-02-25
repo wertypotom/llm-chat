@@ -196,6 +196,6 @@
       "Ensure voice matches active agent persona",
       "Verify robust auto-play without user interaction on supported browsers"
     ],
-    "passes": false
+    "passes": true
   }
 ]

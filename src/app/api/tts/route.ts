@@ -4,28 +4,33 @@ import { env } from '@/shared/lib/env'
 
 const bodySchema = z.object({
   text: z.string().min(1).max(5000),
+  voiceId: z.string().optional(),
 })
 
-const VOICE_ID = '21m00Tcm4TlvDq8ikWAM' // Rachel
+const DEFAULT_VOICE_ID = '21m00Tcm4TlvDq8ikWAM' // Rachel
 
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json()
-    const { text } = bodySchema.parse(body)
+    const { text, voiceId } = bodySchema.parse(body)
+    const activeVoiceId = voiceId || DEFAULT_VOICE_ID
 
-    const upstream = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${VOICE_ID}/stream`, {
-      method: 'POST',
-      headers: {
-        'xi-api-key': env.ELEVENLABS_API_KEY,
-        'Content-Type': 'application/json',
-        Accept: 'audio/mpeg',
+    const upstream = await fetch(
+      `https://api.elevenlabs.io/v1/text-to-speech/${activeVoiceId}/stream`,
+      {
+        method: 'POST',
+        headers: {
+          'xi-api-key': env.ELEVENLABS_API_KEY,
+          'Content-Type': 'application/json',
+          Accept: 'audio/mpeg',
+        },
+        body: JSON.stringify({
+          text,
+          model_id: 'eleven_turbo_v2',
+          voice_settings: { stability: 0.5, similarity_boost: 0.75 },
+        }),
       },
-      body: JSON.stringify({
-        text,
-        model_id: 'eleven_turbo_v2',
-        voice_settings: { stability: 0.5, similarity_boost: 0.75 },
-      }),
-    })
+    )
 
     if (!upstream.ok) {
       const err = await upstream.text()

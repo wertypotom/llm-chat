@@ -142,3 +142,14 @@ NEXT: Multi-channel Support (Task 16)
 - Verified build and linting.
 
 NEXT: Voice Reply to Text (Task 17)
+
+- Note: App is currently using Supabase with Postgres for storage.
+
+[2026-02-25] Task 17 COMPLETE: Voice Reply to Text streaming + Visualizer
+- Added voiceId to Agent type and PRESET_AGENTS
+- Updated /api/tts/route.ts to stream with dynamic voiceId
+- Refactored useTTS to Web Audio API for playback and frequency analysis
+- Built Visualizer canvas component inline in MessageBubble
+- Added voiceId selector to AgentSettingsModal synced with Supabase
+- Typecheck/Lint ✓
+

@@ -19,4 +19,5 @@ export interface Agent {
   name: string
   systemPrompt?: string
   isHidden?: boolean
+  voiceId?: string
 }

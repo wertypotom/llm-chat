@@ -34,7 +34,7 @@ Wait for user approval before proceeding to step 3.
 
 ### 3. Implement
 
-Trigger the appropriate domain skill (`frontend-developer` for UI, `backend-developer` for API) to build the feature per the approved plan.
+Trigger the appropriate domain skill (`frontend-developer` for client code writing, `backend-developer` for backend code writing) to build the feature per the approved plan.
 
 ### 4. Test
 
