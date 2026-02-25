@@ -5,6 +5,9 @@ const envSchema = z.object({
   ABACUS_BASE_URL: z.string().url().default('https://routellm.abacus.ai/v1'),
   MCP_ZAPIER_URL: z.string().url(),
   ELEVENLABS_API_KEY: z.string().min(1),
+  TELEGRAM_BOT_TOKEN: z.string().min(1),
+  TELEGRAM_WEBHOOK_SECRET: z.string().min(1).default('secret_token'),
+  APP_URL: z.string().url().default('http://localhost:3000'),
 })
 
 function validateEnv() {

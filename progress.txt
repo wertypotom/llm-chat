@@ -131,3 +131,14 @@ NEXT: Support Automation (Task 15)
 - Typecheck passed, Lint passed, UI verified.
 
 NEXT: Multi-channel Support (Task 16)
+
+
+[2026-02-24] Task 16 COMPLETE: Multi-channel Support
+- Installed Telegraf and set up telegram utility in `src/shared/lib/telegram.ts`.
+- Created webhook POST route `/api/webhooks/telegram` to forward updates to the bot.
+- Created webhook setup GET route `/api/webhooks/telegram/setup` to register the hook URL.
+- Added message listener linking incoming Telegram texts directly to LLM generation.
+- Added environment variable validation for TELEGRAM_BOT_TOKEN and others.
+- Verified build and linting.
+
+NEXT: Voice Reply to Text (Task 17)
