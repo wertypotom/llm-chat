@@ -15,6 +15,8 @@ export async function POST(req: NextRequest) {
     const { text, voiceId } = bodySchema.parse(body)
     const activeVoiceId = voiceId || DEFAULT_VOICE_ID
 
+    console.log(`[TTS] Requesting voiceId: ${activeVoiceId} (Provided: ${voiceId})`)
+
     const upstream = await fetch(
       `https://api.elevenlabs.io/v1/text-to-speech/${activeVoiceId}/stream`,
       {

@@ -1,24 +1,25 @@
 'use client'
 
 import type { FC } from 'react'
-import type { MessageRole } from '@/features/chat/types'
+import type { Agent, MessageRole } from '@/features/chat/types'
 import ReactMarkdown, { Components } from 'react-markdown'
 import { useTTS } from '@/features/chat/hooks/useTTS'
-import { useAgents } from '@/features/chat/hooks/useAgents'
 import { TicketCard } from './TicketCard'
 import { Visualizer } from './Visualizer'
 import styles from './MessageBubble.module.css'
 
 interface Props {
+  id: string
   role: MessageRole | string
   content: string
+  agent?: Agent
   onConnectSupport?: (agentId: string) => void
 }
 
-export const MessageBubble: FC<Props> = ({ role, content, onConnectSupport }) => {
+export const MessageBubble: FC<Props> = ({ id, role, content, agent, onConnectSupport }) => {
   const isUser = role === 'user'
-  const { speak, isPlaying, stop, analyser } = useTTS()
-  const { activeAgent } = useAgents()
+  const { speak, isPlaying, playingId, stop, analyser } = useTTS()
+  const isThisPlaying = isPlaying && playingId === id
 
   const components: Components = {
     code({ className, children, ...props }) {
@@ -90,14 +91,14 @@ export const MessageBubble: FC<Props> = ({ role, content, onConnectSupport }) =>
         {!isUser && content && (
           <div style={{ display: 'flex', alignItems: 'center', marginTop: '8px' }}>
             <button
-              className={`${styles.ttsBtn} ${isPlaying ? styles.ttsBtnActive : ''}`}
-              onClick={() => (isPlaying ? stop() : speak(content, activeAgent?.voiceId))}
-              title={isPlaying ? 'Stop' : 'Play audio'}
-              aria-label={isPlaying ? 'Stop audio' : 'Play audio'}
+              className={`${styles.ttsBtn} ${isThisPlaying ? styles.ttsBtnActive : ''}`}
+              onClick={() => (isThisPlaying ? stop() : speak(content, id, agent?.voiceId))}
+              title={isThisPlaying ? 'Stop' : 'Play audio'}
+              aria-label={isThisPlaying ? 'Stop audio' : 'Play audio'}
             >
-              {isPlaying ? '⏹' : '🔊'}
+              {isThisPlaying ? '⏹' : '🔊'}
             </button>
-            <Visualizer analyser={analyser} isPlaying={isPlaying} />
+            <Visualizer analyser={analyser} isPlaying={isThisPlaying} />
           </div>
         )}
       </div>

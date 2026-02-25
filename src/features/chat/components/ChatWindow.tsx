@@ -75,11 +75,11 @@ export function ChatWindow({
     if (!isLoading && prevLoadingRef.current) {
       const last = messages[messages.length - 1]
       if (last?.role === 'assistant' && last.content) {
-        speak(last.content)
+        speak(last.content, last.id, activeAgent?.voiceId)
       }
     }
     prevLoadingRef.current = isLoading
-  }, [isLoading, autoPlay, messages, speak])
+  }, [isLoading, autoPlay, messages, speak, activeAgent?.voiceId])
 
   const handleInputChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
     setInput(e.target.value)
@@ -176,8 +176,10 @@ export function ChatWindow({
           {messages.map((m) => (
             <MessageBubble
               key={m.id}
+              id={m.id}
               role={m.role}
               content={m.content}
+              agent={activeAgent}
               onConnectSupport={(agentId) => setActiveAgentId(agentId)}
             />
           ))}

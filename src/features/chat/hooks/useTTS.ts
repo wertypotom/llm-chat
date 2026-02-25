@@ -1,111 +1,106 @@
 'use client'
 
-import { useState, useRef, useCallback, useEffect } from 'react'
+import { create } from 'zustand'
 
-interface UseTTSReturn {
-  speak: (text: string, voiceId?: string) => Promise<void>
+interface TTSState {
   isPlaying: boolean
-  stop: () => void
+  playingId: string | null
   analyser: AnalyserNode | null
+  speak: (text: string, messageId: string, voiceId?: string) => Promise<void>
+  stop: () => void
 }
 
-export function useTTS(): UseTTSReturn {
-  const [isPlaying, setIsPlaying] = useState(false)
-  const [analyser, setAnalyser] = useState<AnalyserNode | null>(null)
-  const audioContextRef = useRef<AudioContext | null>(null)
-  const sourceNodeRef = useRef<MediaElementAudioSourceNode | null>(null)
-  const audioRef = useRef<HTMLAudioElement | null>(null)
+// Module-level audio primitives so they are true singletons
+let audioContext: AudioContext | null = null
+let sourceNode: MediaElementAudioSourceNode | null = null
+let audioEl: HTMLAudioElement | null = null
 
-  const initAudioContext = useCallback(() => {
-    if (!audioContextRef.current) {
-      const AudioContextClass =
-        window.AudioContext ||
-        (window as unknown as { webkitAudioContext: typeof window.AudioContext }).webkitAudioContext
-      audioContextRef.current = new AudioContextClass()
-    }
-    return audioContextRef.current
-  }, [])
+const initAudio = () => {
+  if (typeof window === 'undefined') return { ctx: null, audio: null, analyser: null }
 
-  const stop = useCallback(() => {
-    if (audioRef.current) {
-      audioRef.current.pause()
-      audioRef.current.src = ''
-    }
-    setIsPlaying(false)
-  }, [])
+  if (!audioEl) {
+    audioEl = new Audio()
+    audioEl.crossOrigin = 'anonymous'
+  }
 
-  const speak = useCallback(
-    async (text: string, voiceId?: string) => {
-      stop()
+  if (!audioContext) {
+    const AudioContextClass =
+      window.AudioContext ||
+      (window as unknown as { webkitAudioContext: typeof window.AudioContext }).webkitAudioContext
+    audioContext = new AudioContextClass()
+  }
 
-      try {
-        setIsPlaying(true)
-        const res = await fetch('/api/tts', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ text, voiceId }),
-        })
+  let analyser: AnalyserNode | null = null
+  if (!sourceNode && audioContext) {
+    sourceNode = audioContext.createMediaElementSource(audioEl)
+    analyser = audioContext.createAnalyser()
+    analyser.fftSize = 64
+    sourceNode.connect(analyser)
+    analyser.connect(audioContext.destination)
+  }
 
-        if (!res.ok) throw new Error(`TTS error ${res.status}`)
-
-        const blob = await res.blob()
-        const url = URL.createObjectURL(blob)
-
-        if (!audioRef.current) {
-          audioRef.current = new Audio()
-          audioRef.current.crossOrigin = 'anonymous'
-        }
-
-        const audio = audioRef.current
-        audio.src = url
-
-        audio.onended = () => {
-          URL.revokeObjectURL(url)
-          setIsPlaying(false)
-        }
-
-        audio.onerror = () => {
-          URL.revokeObjectURL(url)
-          setIsPlaying(false)
-        }
-
-        const ctx = initAudioContext()
-        // Resume context in case it was suspended (browser policy)
-        if (ctx.state === 'suspended') {
-          await ctx.resume()
-        }
-
-        // Only wire up source/analyser once per audio element
-        if (!sourceNodeRef.current) {
-          sourceNodeRef.current = ctx.createMediaElementSource(audio)
-          const newAnalyser = ctx.createAnalyser()
-          newAnalyser.fftSize = 64 // relatively low for small UI bars
-          sourceNodeRef.current.connect(newAnalyser)
-          newAnalyser.connect(ctx.destination)
-          setAnalyser(newAnalyser)
-        }
-
-        await audio.play()
-      } catch (err) {
-        console.error('Playback failed', err)
-        setIsPlaying(false)
-      }
-    },
-    [stop, initAudioContext],
-  )
-
-  // Cleanup on unmount
-  useEffect(() => {
-    return () => {
-      if (audioRef.current) {
-        audioRef.current.pause()
-        audioRef.current.src = ''
-      }
-      if (audioContextRef.current?.state !== 'closed') {
-        audioContextRef.current?.close().catch(console.error)
-      }
-    }
-  }, [])
-
-  return { speak, isPlaying, stop, analyser }
+  return { ctx: audioContext, audio: audioEl, analyser }
 }
+
+export const useTTS = create<TTSState>()((set, get) => ({
+  isPlaying: false,
+  playingId: null,
+  analyser: null,
+
+  stop: () => {
+    if (audioEl) {
+      audioEl.pause()
+      audioEl.src = ''
+    }
+    set({ isPlaying: false, playingId: null })
+  },
+
+  speak: async (text: string, messageId: string, voiceId?: string) => {
+    const { stop } = get()
+    stop()
+
+    try {
+      set({ isPlaying: true, playingId: messageId })
+
+      const res = await fetch('/api/tts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text, voiceId }),
+      })
+
+      if (!res.ok) throw new Error(`TTS error ${res.status}`)
+
+      const blob = await res.blob()
+      const url = URL.createObjectURL(blob)
+
+      const { ctx, audio, analyser: newAnalyser } = initAudio()
+      if (!audio || !ctx) throw new Error('Audio not supported')
+
+      // If we created a new analyser node, save it to state
+      if (newAnalyser) {
+        set({ analyser: newAnalyser })
+      }
+
+      audio.src = url
+
+      audio.onended = () => {
+        URL.revokeObjectURL(url)
+        set({ isPlaying: false, playingId: null })
+      }
+
+      audio.onerror = () => {
+        URL.revokeObjectURL(url)
+        set({ isPlaying: false, playingId: null })
+      }
+
+      if (ctx.state === 'suspended') {
+        await ctx.resume()
+      }
+
+      await audio.play()
+    } catch (err) {
+      console.error('Playback failed', err)
+      set({ isPlaying: false, playingId: null })
+    }
+  },
+}))
