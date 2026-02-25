@@ -1,5 +1,4 @@
 import type { FC } from 'react'
-import { useAgents } from '@/features/chat/hooks/useAgents'
 import styles from './TicketCard.module.css'
 
 interface TicketProps {
@@ -7,17 +6,12 @@ interface TicketProps {
   category: string
   urgency: 'low' | 'medium' | 'high' | 'critical'
   summary: string
+  onConnect?: () => void
 }
 
-export const TicketCard: FC<TicketProps> = ({ id, category, urgency, summary }) => {
-  const { agents, setActiveId } = useAgents()
-
+export const TicketCard: FC<TicketProps> = ({ id, category, urgency, summary, onConnect }) => {
   const handleConnect = () => {
-    // Find the preset support agent by ID or fallback to the first agent
-    const supportAgent = agents.find((a) => a.id === 'support')
-    if (supportAgent) {
-      setActiveId(supportAgent.id)
-    }
+    if (onConnect) onConnect()
   }
 
   return (

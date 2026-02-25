@@ -173,7 +173,12 @@ export function ChatWindow({
             <p className={styles.empty}>Send a message to start chatting…</p>
           )}
           {messages.map((m) => (
-            <MessageBubble key={m.id} role={m.role} content={m.content} />
+            <MessageBubble
+              key={m.id}
+              role={m.role}
+              content={m.content}
+              onConnectSupport={() => setActiveAgentId('support')}
+            />
           ))}
           {isLoading && messages.at(-1)?.role !== 'assistant' && <TypingIndicator />}
           {error && <p className={styles.error}>Error: {error}</p>}
