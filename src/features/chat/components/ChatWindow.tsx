@@ -9,6 +9,9 @@ import { MessageBubble } from './MessageBubble'
 import { ChatInput } from './ChatInput'
 import { TypingIndicator } from './TypingIndicator'
 import { Sidebar } from './Sidebar'
+import { ModelSelector } from './ModelSelector'
+import { useGlobalModel } from '@/features/chat/hooks/useGlobalModel'
+import { AVAILABLE_MODELS } from '@/shared/lib/models'
 import styles from './ChatWindow.module.css'
 
 interface Props {
@@ -32,9 +35,12 @@ export function ChatWindow({
   const prevLoadingRef = useRef(false)
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
+  const { modelId, setModelId } = useGlobalModel()
+
   const { messages, input, setInput, isLoading, error, sendMessage } = useChatStream({
     initialMessages: session.messages,
     onMessagesChange,
+    modelId,
   })
 
   const { speak } = useTTS()
@@ -117,6 +123,12 @@ export function ChatWindow({
             </svg>
           </div>
           <h1 className={styles.title}>LLM Chat</h1>
+          <ModelSelector
+            models={AVAILABLE_MODELS}
+            value={modelId}
+            onChange={setModelId}
+            disabled={isLoading}
+          />
           <button
             className={`${styles.autoPlayBtn} ${autoPlay ? styles.autoPlayBtnOn : ''}`}
             onClick={toggleAutoPlay}

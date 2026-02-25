@@ -48,8 +48,6 @@ export const llmProvider = createOpenAICompatible({
   fetch: abacusFetch,
 })
 
-export const DEFAULT_MODEL = 'gpt-5'
-
 export const SYSTEM_PROMPT = `You are a helpful, intelligent assistant with access to Zapier MCP tools for Google Drive and Google Sheets.
 
 Available capabilities:

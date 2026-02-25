@@ -15,6 +15,7 @@ interface UseChatStreamReturn {
 interface UseChatStreamOptions {
   initialMessages?: ChatMessage[]
   onMessagesChange?: (messages: ChatMessage[]) => void
+  modelId?: string
 }
 
 export function useChatStream(options: UseChatStreamOptions = {}): UseChatStreamReturn {
@@ -66,7 +67,7 @@ export function useChatStream(options: UseChatStreamOptions = {}): UseChatStream
         const res = await fetch('/api/chat', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ messages: history }),
+          body: JSON.stringify({ messages: history, model: options.modelId }),
           signal: abortRef.current.signal,
         })
 

@@ -101,3 +101,13 @@ NEXT: Task 12 — Security hardening (env validation, rate limiting)
 - Typecheck/Lint passed. NPM audit yields high vulns requiring --force, skipped to avoid breakage.
 
 [ALL TASKS COMPLETE]
+
+
+[2026-02-24] Task 13 COMPLETE: Multiple Models
+- src/shared/lib/models.ts — config with AVAILABLE_MODELS
+- src/features/chat/hooks/useGlobalModel.ts — localStorage-backed model state
+- src/features/chat/components/ModelSelector.tsx — dropdown UI in ChatWindow header
+- src/app/api/chat/route.ts — accept `model` in JSON body, fallback to default
+- Typecheck passed, Lint passed, tested persistence.
+
+NEXT: Prompt & Agent Management (Task 14)

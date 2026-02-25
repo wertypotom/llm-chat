@@ -1,4 +1,5 @@
-import { llmProvider, DEFAULT_MODEL, SYSTEM_PROMPT } from '@/shared/lib/llm'
+import { llmProvider, SYSTEM_PROMPT } from '@/shared/lib/llm'
+import { DEFAULT_MODEL_ID } from '@/shared/lib/models'
 import { getZapierMCPClient, getAI_SDKTools } from '@/shared/lib/mcp-client'
 import { checkRateLimit } from '@/shared/lib/rate-limit'
 import { z } from 'zod'
@@ -10,6 +11,7 @@ export const maxDuration = 300
 
 const requestSchema = z.object({
   messages: z.array(z.record(z.string(), z.unknown())).min(1),
+  model: z.string().optional(),
 })
 
 export async function POST(req: Request) {
@@ -25,7 +27,7 @@ export async function POST(req: Request) {
 
   try {
     const body = await req.json()
-    const { messages } = requestSchema.parse(body)
+    const { messages, model } = requestSchema.parse(body)
 
     let tools = {}
     try {
@@ -38,7 +40,7 @@ export async function POST(req: Request) {
     }
 
     const result = await streamText({
-      model: llmProvider(DEFAULT_MODEL),
+      model: llmProvider(model || DEFAULT_MODEL_ID),
       system: SYSTEM_PROMPT,
       messages: messages as ModelMessage[],
       tools: Object.keys(tools).length > 0 ? tools : undefined,

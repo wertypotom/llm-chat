@@ -142,5 +142,60 @@
       "Run npm audit; fix any high/critical vulnerabilities"
     ],
     "passes": true
+  },
+  {
+    "category": "functional",
+    "description": "Multiple Models - Choose from several AI models for chat with different capabilities",
+    "steps": [
+      "Add model selector dropdown to ChatWindow header",
+      "Persist selected model in global state/localStorage",
+      "Update /api/chat POST to accept model ID",
+      "Pass chosen model to RouteLLM/Abacus config"
+    ],
+    "passes": true
+  },
+  {
+    "category": "functional",
+    "description": "Prompt & Agent Management - Change agent prompts and switch specialized agents",
+    "steps": [
+      "Create Settings modal to define custom system prompts",
+      "Add preset agents (e.g., Coder, Support, Writer)",
+      "UI to switch active agent",
+      "Pass selected agent's system prompt to /api/chat"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Support Automation - Automatic ticket routing with support agents coordination",
+    "steps": [
+      "Detect support intent in user messages via LLM tool/router",
+      "Extract ticket metadata (category, urgency)",
+      "Route to specialized simulated support agent",
+      "Track ticket status and handoffs in UI"
+    ],
+    "passes": false
+  },
+  {
+    "category": "infrastructure",
+    "description": "Multi-channel Support - Chat works on Telegram, Discord, etc.",
+    "steps": [
+      "Create generic webhook route /api/webhooks/[channel]",
+      "Integrate Telegram Bot API (receive/send messages)",
+      "Route webhook messages to existing LLM logic",
+      "Format and dispatch responses back to channel"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Voice Reply to Text - Advanced TTS for all incoming texts",
+    "steps": [
+      "Enhance existing TTS to stream chunks for zero-latency playback",
+      "Add audio visualizer component during speech",
+      "Ensure voice matches active agent persona",
+      "Verify robust auto-play without user interaction on supported browsers"
+    ],
+    "passes": false
   }
 ]
