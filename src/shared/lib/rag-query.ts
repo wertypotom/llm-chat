@@ -33,6 +33,6 @@ export async function queryKnowledgeBase(query: string): Promise<string> {
     return response.response
   } catch (error) {
     console.error('[RAG] Error querying knowledge base:', error)
-    return 'Could not retrieve information from the knowledge base due to an internal error.'
+    throw error // Bubble up to see the true error in local api test route
   }
 }

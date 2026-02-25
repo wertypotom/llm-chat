@@ -1,4 +1,4 @@
-import { OpenAIEmbedding } from '@llamaindex/openai'
+import { OpenAIEmbedding, OpenAI } from '@llamaindex/openai'
 import { Settings } from 'llamaindex'
 import { env } from '@/shared/lib/env'
 
@@ -15,6 +15,13 @@ export function configureLlamaIndex() {
   // Set as global configuration for LlamaIndex
   Settings.embedModel = embedModel
 
-  // Future-proofing: We can also set the main LLM here if needed,
-  // but for raw Vector Store insert/query we mainly need the embedModel.
+  // Configure the global LLM used for synthesizing Vector DB results into human answers
+  const llm = new OpenAI({
+    model: 'gpt-4o',
+    apiKey: env.ABACUS_API_KEY,
+    additionalSessionOptions: {
+      baseURL: env.ABACUS_BASE_URL,
+    },
+  })
+  Settings.llm = llm
 }

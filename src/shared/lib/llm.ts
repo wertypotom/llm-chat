@@ -72,7 +72,9 @@ export function getSystemPrompt(customSystemPrompt?: string): string {
   const toolDirectives = `
 ${REQUIRED_TOOL_INSTRUCTIONS}
 
-CRITICAL INSTRUCTION: If the user describes ANY issue, bug, crash, registration failure, login problem, billing dispute, or frustration, you MUST invoke the 'createSupportTicket' tool IMMEDIATELY. DO NOT try to troubleshoot the issue yourself. DO NOT ask the user clarifying questions about their device, OS, or steps to reproduce until AFTER you have created the ticket.
+CRITICAL RULES:
+1. SUPPORT TICKETS: If the user describes ANY issue, bug, crash, registration failure, login problem, billing dispute, or frustration, you MUST invoke the 'createSupportTicket' tool IMMEDIATELY. DO NOT try to troubleshoot first.
+2. INTERNAL KNOWLEDGE: If the user asks about facts, weather, policies, rules, or specific data, you MUST invoke the 'searchKnowledgeBase' tool FIRST before answering to check the uploaded documents. DO NOT hallucinate answers or say you don't have access to external data.
 
 If you have Zapier tools available, you can use those when specifically asked to draft emails or check calendars.`
 
