@@ -2,6 +2,7 @@ import { Client } from '@modelcontextprotocol/sdk/client/index.js'
 import { StreamableHTTPClientTransport } from '@modelcontextprotocol/sdk/client/streamableHttp.js'
 import { tool, jsonSchema } from 'ai'
 import type { JSONSchema7 } from 'json-schema'
+import { env } from '@/shared/lib/env'
 
 type AITool = ReturnType<typeof tool<Record<string, unknown>, unknown>>
 
@@ -18,9 +19,7 @@ let mcpToolsMetaCache: MCPToolMeta[] | null = null
 export async function getZapierMCPClient(): Promise<Client> {
   if (mcpClientInstance) return mcpClientInstance
 
-  const url = process.env.MCP_ZAPIER_URL
-  if (!url) throw new Error('MCP_ZAPIER_URL is not defined in environment variables')
-
+  const url = env.MCP_ZAPIER_URL
   const client = new Client({ name: 'zapier-mcp', version: '1.0.0' }, { capabilities: {} })
   const transport = new StreamableHTTPClientTransport(new URL(url))
   await client.connect(transport)

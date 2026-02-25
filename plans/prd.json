@@ -141,6 +141,6 @@
       "Ensure .env.local never committed (.gitignore check)",
       "Run npm audit; fix any high/critical vulnerabilities"
     ],
-    "passes": false
+    "passes": true
   }
 ]

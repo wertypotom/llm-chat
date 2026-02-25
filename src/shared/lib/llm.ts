@@ -36,13 +36,15 @@ function abacusFetch(input: RequestInfo | URL, init?: RequestInit): Promise<Resp
   return fetch(input, init)
 }
 
+import { env } from '@/shared/lib/env'
+
 /**
  * Abacus RouteLLM — forces /chat/completions, strips unsupported params.
  */
 export const llmProvider = createOpenAICompatible({
   name: 'abacus',
-  apiKey: process.env.ABACUS_API_KEY ?? '',
-  baseURL: process.env.ABACUS_BASE_URL ?? 'https://routellm.abacus.ai/v1',
+  apiKey: env.ABACUS_API_KEY,
+  baseURL: env.ABACUS_BASE_URL,
   fetch: abacusFetch,
 })
 

@@ -1,5 +1,6 @@
 import { NextRequest } from 'next/server'
 import { z } from 'zod'
+import { env } from '@/shared/lib/env'
 
 const bodySchema = z.object({
   text: z.string().min(1).max(5000),
@@ -12,15 +13,10 @@ export async function POST(req: NextRequest) {
     const body = await req.json()
     const { text } = bodySchema.parse(body)
 
-    const apiKey = process.env.ELEVENLABS_API_KEY
-    if (!apiKey) {
-      return Response.json({ error: 'ELEVENLABS_API_KEY not configured' }, { status: 500 })
-    }
-
     const upstream = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${VOICE_ID}/stream`, {
       method: 'POST',
       headers: {
-        'xi-api-key': apiKey,
+        'xi-api-key': env.ELEVENLABS_API_KEY,
         'Content-Type': 'application/json',
         Accept: 'audio/mpeg',
       },

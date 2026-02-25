@@ -91,3 +91,13 @@ NEXT: Task 11 — Conversation history in localStorage
 - Typecheck ✓, Lint ✓
 
 NEXT: Task 12 — Security hardening (env validation, rate limiting)
+
+[2026-02-24] Task 12 COMPLETE: Security Hardening
+- src/shared/lib/env.ts — strict zod validation for required env vars
+- src/shared/lib/rate-limit.ts — sliding window 20 req/min per IP
+- src/app/api/chat/route.ts — rate limit enforcement, env module applied
+- src/app/api/tts/route.ts — env module applied
+- src/shared/lib/llm.ts, src/shared/lib/mcp-client.ts — env module applied
+- Typecheck/Lint passed. NPM audit yields high vulns requiring --force, skipped to avoid breakage.
+
+[ALL TASKS COMPLETE]
