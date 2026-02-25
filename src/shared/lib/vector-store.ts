@@ -1,5 +1,4 @@
 import { SupabaseVectorStore } from '@llamaindex/supabase'
-import { supabase } from './supabase'
 
 // Ensure we have the required environment variables
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!

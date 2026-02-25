@@ -1,10 +1,4 @@
-import {
-  Document,
-  VectorStoreIndex,
-  storageContextFromDefaults,
-  SentenceSplitter,
-  Settings,
-} from 'llamaindex'
+import { Document, VectorStoreIndex, storageContextFromDefaults, Settings } from 'llamaindex'
 import { PDFReader } from '@llamaindex/readers/pdf'
 import { vectorStore } from './vector-store'
 import { configureLlamaIndex } from './rag-config'
@@ -32,7 +26,7 @@ export async function ingestDocument(fileBuffer: Buffer, fileName: string) {
 
     // Convert parsed content into standard Documents with simple metadata
     const documents = parsedDocuments.map(
-      (doc: any) =>
+      (doc: { text: string }) =>
         new Document({
           text: doc.text,
           metadata: {

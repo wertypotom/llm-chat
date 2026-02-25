@@ -21,11 +21,10 @@ export async function POST(req: NextRequest) {
     const result = await ingestDocument(buffer, file.name)
 
     return NextResponse.json(result, { status: 200 })
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('API Error during ingestion:', error)
-    return NextResponse.json(
-      { error: error.message || 'Internal Server Error during ingestion' },
-      { status: 500 },
-    )
+    const message =
+      error instanceof Error ? error.message : 'Internal Server Error during ingestion'
+    return NextResponse.json({ error: message }, { status: 500 })
   }
 }

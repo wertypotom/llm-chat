@@ -55,8 +55,9 @@ export const Sidebar: FC<Props> = ({ sessions, activeId, onSelect, onNew, open }
       } else {
         alert(`Upload failed: ${data.error}`)
       }
-    } catch (error: any) {
-      alert(`Upload failed: ${error.message}`)
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error)
+      alert(`Upload failed: ${message}`)
     } finally {
       setIsUploading(false)
       if (fileInputRef.current) fileInputRef.current.value = ''
