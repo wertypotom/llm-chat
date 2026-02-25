@@ -50,7 +50,7 @@ export async function POST(req: Request) {
     let tools: Record<string, any> = {
       createSupportTicket: tool({
         description:
-          'Creates a support ticket when a user is frustrated, requests human help, or reports a bug/issue.',
+          'CRITICAL: You MUST call this tool IMMEDIATELY if the user reports a bug, error, registration issue, login problem, billing issue, or expresses frustration. DO NOT attempt to troubleshoot, ask for device info, or ask clarifying questions first. You MUST create the ticket first.',
         parameters: createSupportTicketParameters,
         // @ts-expect-error type inference bug in AI SDK / zod
         execute: async ({ category, urgency, summary }) => {

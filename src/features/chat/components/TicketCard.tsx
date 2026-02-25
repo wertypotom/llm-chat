@@ -12,7 +12,7 @@ interface TicketProps {
 export const TicketCard: FC<TicketProps> = ({ id, category, urgency, summary, onConnect }) => {
   const handleConnect = () => {
     if (!onConnect) return
-    const cat = category.toLowerCase()
+    const cat = (category || '').toLowerCase()
 
     if (cat.includes('billing') || cat.includes('payment') || cat.includes('subscription')) {
       onConnect('billing_support')
@@ -26,12 +26,14 @@ export const TicketCard: FC<TicketProps> = ({ id, category, urgency, summary, on
   return (
     <div className={styles.card}>
       <header className={styles.header}>
-        <span className={styles.id}>{id}</span>
-        <span className={`${styles.urgency} ${styles[urgency]}`}>{urgency}</span>
+        <span className={styles.id}>{id || 'TKT-????'}</span>
+        <span className={`${styles.urgency} ${styles[urgency] || styles.low}`}>
+          {urgency || 'low'}
+        </span>
       </header>
       <div className={styles.body}>
-        <div className={styles.category}>{category}</div>
-        <p className={styles.summary}>{summary}</p>
+        <div className={styles.category}>{category || 'General Support'}</div>
+        <p className={styles.summary}>{summary || 'No summary provided.'}</p>
       </div>
       <footer className={styles.footer}>
         <button onClick={handleConnect} className={styles.connectBtn}>

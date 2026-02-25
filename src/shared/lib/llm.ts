@@ -61,11 +61,20 @@ CRITICAL RULES FOR USING ZAPIER TOOLS:
 - Also fill optional fields (spreadsheet, worksheet, file, folder) when known.
 - Never call a tool with empty arguments.
 - If Zapier returns a followUpQuestion, call the tool again with more specific instructions addressing that question.
-- Be concise and conversational.`
+- Be concise and conversational.
+`
 
-export function getSystemPrompt(customPrompt?: string): string {
-  const base =
-    customPrompt ||
+export function getSystemPrompt(customSystemPrompt?: string): string {
+  const basePrompt =
+    customSystemPrompt ||
     'You are a helpful, intelligent assistant with access to Zapier MCP tools for Google Drive and Google Sheets.'
-  return `${base}\n${REQUIRED_TOOL_INSTRUCTIONS}`
+
+  const toolDirectives = `
+${REQUIRED_TOOL_INSTRUCTIONS}
+
+CRITICAL INSTRUCTION: If the user describes ANY issue, bug, crash, registration failure, login problem, billing dispute, or frustration, you MUST invoke the 'createSupportTicket' tool IMMEDIATELY. DO NOT try to troubleshoot the issue yourself. DO NOT ask the user clarifying questions about their device, OS, or steps to reproduce until AFTER you have created the ticket.
+
+If you have Zapier tools available, you can use those when specifically asked to draft emails or check calendars.`
+
+  return `${basePrompt}${toolDirectives}`
 }
