@@ -9,10 +9,7 @@ export function configureLlamaIndex() {
   // Initialize the specific embedding model
   const embedModel = new OpenAIEmbedding({
     model: 'text-embedding-3-small',
-    apiKey: env.ABACUS_API_KEY,
-    additionalSessionOptions: {
-      baseURL: env.ABACUS_BASE_URL,
-    },
+    apiKey: process.env.OPENAI_API_KEY,
   })
 
   // Set as global configuration for LlamaIndex
