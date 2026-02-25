@@ -4,27 +4,39 @@
   height: 100vh;
   max-width: 860px;
   margin: 0 auto;
+  background: var(--color-bg);
 }
 
+/* Glassmorphism header */
 .header {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 16px 20px;
+  padding: 16px 24px;
   border-bottom: 1px solid var(--color-border);
   background: var(--color-surface);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   position: sticky;
   top: 0;
   z-index: 10;
 }
 
 .logo {
-  font-size: 20px;
-  color: var(--color-accent);
+  width: 28px;
+  height: 28px;
+  background: linear-gradient(135deg, #6366f1, #818cf8);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  box-shadow: var(--shadow-glow);
+  flex-shrink: 0;
 }
 
 .title {
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 600;
   color: var(--color-text);
   letter-spacing: -0.3px;
@@ -32,49 +44,55 @@
 }
 
 .autoPlayBtn {
-  padding: 4px 10px;
+  padding: 5px 12px;
   font-size: 12px;
+  font-weight: 500;
   border-radius: 20px;
   border: 1px solid var(--color-border);
   background: transparent;
   color: var(--color-text-muted);
   cursor: pointer;
-  transition: all 0.15s;
+  transition: all 0.2s;
+  font-family: inherit;
 }
 
 .autoPlayBtn:hover {
   border-color: var(--color-accent);
   color: var(--color-text);
+  background: var(--color-accent-dim);
 }
 
 .autoPlayBtnOn {
-  background: var(--color-accent);
+  background: var(--color-accent-dim);
   border-color: var(--color-accent);
-  color: #fff;
+  color: var(--color-accent);
+  box-shadow: 0 0 12px var(--color-accent-glow);
 }
 
+/* Messages area with subtle radial gradient */
 .messages {
   flex: 1;
   overflow-y: auto;
-  padding: 24px 20px;
+  padding: 32px 24px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  scroll-behavior: smooth;
+  gap: 16px;
+  background: radial-gradient(ellipse at 50% 0%, rgba(99, 102, 241, 0.05) 0%, transparent 70%);
 }
 
 .empty {
   color: var(--color-text-muted);
   font-size: 14px;
   text-align: center;
-  margin-top: 40px;
+  margin-top: 60px;
+  opacity: 0.6;
 }
 
 .error {
-  color: #f85149;
+  color: #f87171;
   font-size: 13px;
-  padding: 8px 12px;
-  background: rgba(248, 81, 73, 0.1);
+  padding: 10px 14px;
+  background: rgba(248, 113, 113, 0.08);
   border-radius: var(--radius-sm);
-  border: 1px solid rgba(248, 81, 73, 0.3);
+  border: 1px solid rgba(248, 113, 113, 0.2);
 }

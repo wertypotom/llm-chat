@@ -51,7 +51,20 @@ export function ChatWindow() {
   return (
     <div className={styles.root}>
       <header className={styles.header}>
-        <span className={styles.logo}>✦</span>
+        <div className={styles.logo} aria-hidden="true">
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="white"
+            strokeWidth="2.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" />
+          </svg>
+        </div>
         <h1 className={styles.title}>LLM Chat</h1>
         <button
           className={`${styles.autoPlayBtn} ${autoPlay ? styles.autoPlayBtnOn : ''}`}
@@ -59,7 +72,7 @@ export function ChatWindow() {
           title={autoPlay ? 'Auto-play ON — click to disable' : 'Auto-play OFF — click to enable'}
           aria-pressed={autoPlay}
         >
-          🔊 Auto
+          Auto-play
         </button>
       </header>
 

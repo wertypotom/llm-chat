@@ -117,7 +117,7 @@
       "Typing indicator component (three bouncing dots) shown while LLM streams",
       "Verify: visually polished, no layout shifts"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",

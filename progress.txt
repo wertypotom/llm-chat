@@ -69,3 +69,14 @@ NEXT: Task 9 — Auto-play TTS mode toggle
 - Typecheck ✓, Lint ✓, Tests ✓
 
 NEXT: Task 10 — Premium dark-mode UI with micro-animations
+
+[2026-02-24] Task 10 COMPLETE: Premium dark-mode UI
+- globals.css: DM Sans, obsidian #09090b bg, indigo accent, glass tokens, scrollbar, reduced-motion
+- layout.tsx: font preconnect, removed next/font/google
+- ChatWindow.module.css: glassmorphism header/footer, radial gradient bg, SVG logo
+- MessageBubble.module.css: indigo gradient user bubbles, glass assistant bubbles, hover-reveal TTS btn
+- ChatInput.module.css: glass input, indigo focus ring, gradient send button with glow
+- TypingIndicator.module.css: accent-colored dots, glass bubble
+- Typecheck ✓, Lint ✓
+
+NEXT: Task 11 — Conversation history in localStorage
