@@ -153,3 +153,12 @@ NEXT: Voice Reply to Text (Task 17)
 - Added voiceId selector to AgentSettingsModal synced with Supabase
 - Typecheck/Lint ✓
 
+
+NEXT: RAG Phase 1 - Setup LlamaIndex & Vector DB
+
+[2026-02-25] RAG Phase 1 COMPLETE: Setup LlamaIndex & Supabase Vector DB
+- Installed `llamaindex`, `@llamaindex/openai` and `@llamaindex/supabase`
+- Created `src/shared/lib/vector-store.ts` initializing SupabaseVectorStore
+- Created `src/shared/lib/rag-config.ts` configuring LlamaIndex with OpenAI embeddings (1536 dims)
+- User executed Supabase SQL to enable pgvector, create `documents` table, and setup similarity search
+- Typecheck ✓, Lint ✓, Build ✓

@@ -197,5 +197,150 @@
       "Verify robust auto-play without user interaction on supported browsers"
     ],
     "passes": true
+  },
+  {
+    "category": "infrastructure",
+    "description": "RAG Phase 1 - Setup LlamaIndex & Vector DB",
+    "steps": [
+      "Install LlamaIndex TS and Vector DB dependencies (e.g., pgvector/supabase or local in-memory)",
+      "Create database tables/schemas for vector embeddings",
+      "Initialize VectorStore index client in shared/lib",
+      "Verify database connection and index initialization"
+    ],
+    "passes": true
+  },
+  {
+    "category": "functional",
+    "description": "RAG Phase 2 - PDF Parsing and Ingestion",
+    "steps": [
+      "Implement robust PDF text extraction for large documents (500 pages)",
+      "Create chunking logic to split text into reasonable context windows",
+      "Generate embeddings for chunks and insert into Vector DB",
+      "Create an admin script or endpoint to trigger ingestion"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "RAG Phase 3 - Agent Query Tool",
+    "steps": [
+      "Create a search tool that queries the Vector DB using user input",
+      "Expose tool to the main chat LLM via MCP or AI SDK tools array",
+      "Update system prompt to instruct agent to use tool for document queries",
+      "Verify LLM successfully retrieves and cites PDF context"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Summarization Phase 1 - Chunking & Map-Reduce Logic",
+    "steps": [
+      "Implement map-reduce (shotgun) summarization algorithm for large texts",
+      "Create individual LLM prompts for chunk summaries and final merged summary",
+      "Handle token limits and rate limits during parallel chunk processing"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Summarization Phase 2 - API & UI Integration",
+    "steps": [
+      "Create /api/summarize endpoint exposing the map-reduce logic",
+      "Add UI component for users to upload or select a PDF for summarization",
+      "Display streaming or segmented summary results in the chat",
+      "Verify end-to-end summarization accuracy on a sample large document"
+    ],
+    "passes": false
+  },
+  {
+    "category": "infrastructure",
+    "description": "Multi-Agent Phase 1 - Orchestration Setup",
+    "steps": [
+      "Install AutoGen or set up custom multi-agent orchestration architecture",
+      "Define personas (e.g., researcher, reviewer, final responder)",
+      "Implement the internal message passing loop between agents",
+      "Add stop conditions so agents don't loop endlessly"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Multi-Agent Phase 2 - UI Rendering",
+    "steps": [
+      "Update ChatWindow to handle streaming updates from multiple distinct agents",
+      "Add visual indicators for agent thought processes and inter-agent dialogue",
+      "Ensure final consensus message is clearly presented to the user"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Context Priority Phase 1 - Intent Routing",
+    "steps": [
+      "Create a fast, lightweight LLM routing call for incoming messages",
+      "Define intent categories (e.g., casual, technical, document search, form help)",
+      "Parse router output to determine the target sub-agent or system prompt"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Context Priority Phase 2 - Dynamic Swapping",
+    "steps": [
+      "Update /api/chat to dynamically inject the correct system prompt based on router",
+      "Dynamically filter available tools based on the chosen context scope",
+      "Verify agent smoothly switches from coding help to casual chat without hallucination"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Page Context Phase 1 - DOM State Capture",
+    "steps": [
+      "Create a React hook or utility to read active form fields or page state",
+      "Serialize relevant DOM information (e.g., focused input, filled resume fields) into a clean format",
+      "Ensure this runs efficiently without causing React render loops"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Page Context Phase 2 - LLM Context Injection",
+    "steps": [
+      "Attach serialized page state as metadata in the chat request payload",
+      "Append page context to the backend system prompt seamlessly",
+      "Test user asking 'What should I put in this field?' and verify accurate response"
+    ],
+    "passes": false
+  },
+  {
+    "category": "infrastructure",
+    "description": "Voice Call Phase 1 - Audio Webhooks",
+    "steps": [
+      "Set up Telegram/WhatsApp webhook endpoints to accept incoming audio streams or voice notes",
+      "Integrate Speech-To-Text (e.g., Whisper API) to transcribe incoming audio",
+      "Map transcribed text to the existing text-based LLM chat flow"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Voice Call Phase 2 - TTS & Responses",
+    "steps": [
+      "Use existing TTS pipeline to generate audio response from LLM text",
+      "Send generated audio file back through the Telegram/WhatsApp API",
+      "Handle API rate limits and file size constraints for voice assets"
+    ],
+    "passes": false
+  },
+  {
+    "category": "functional",
+    "description": "Voice Call Phase 3 - Full Contextual Integration",
+    "steps": [
+      "Ensure the webhook pipeline has access to user chat history and session context",
+      "Inject page context (from active web sessions, if linked to the phone number) into the voice LLM prompt",
+      "Verify end-to-end voice conversation maintains context across both voice and text channels"
+    ],
+    "passes": false
   }
 ]
