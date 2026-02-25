@@ -171,3 +171,9 @@ NEXT: RAG Phase 2 - PDF Parsing and Ingestion
 - Built an admin POST endpoint at `/api/admin/ingest` to handle multipart `form-data` file uploads
 - Resolved type issues with file buffers and typescript compilation.
 - Typecheck ✓, Lint ✓, Build ✓
+
+RAG Phase 3 - Agent Query Tool (Completed)
+- Created src/shared/lib/rag-query.ts for connecting to the LlamaIndex query engine instance
+- Configured LlamaIndex to query the Supabase Vector Store
+- Injected the searchKnowledgeBase tool into the Vercel AI SDK tools record inside api/chat/route.ts
+- Passed typechecks and linter

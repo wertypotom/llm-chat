@@ -5,6 +5,7 @@ import { checkRateLimit } from '@/shared/lib/rate-limit'
 import { z } from 'zod'
 import { streamText, stepCountIs, tool } from 'ai'
 import type { ModelMessage } from 'ai'
+import { queryKnowledgeBase } from '@/shared/lib/rag-query'
 
 // Allow long multi-step Abacus calls (each LLM step can take 20-50s)
 export const maxDuration = 300
@@ -48,6 +49,19 @@ export async function POST(req: Request) {
     // when merging with `zapierTools` which might be `any`.
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let tools: Record<string, any> = {
+      searchKnowledgeBase: tool({
+        description:
+          'Search the internal knowledge base (uploaded PDFs and documents) for facts, policies, instructions, rules, and local information (e.g., specific weather or guidelines stored in the database). Call this tool whenever asked for specific information that might be in the provided context.',
+        parameters: z.object({
+          query: z
+            .string()
+            .describe('The specific question or search query to find in the documents.'),
+        }),
+        // @ts-expect-error type inference bug in AI SDK / zod
+        execute: async ({ query }) => {
+          return await queryKnowledgeBase(query)
+        },
+      }),
       createSupportTicket: tool({
         description:
           'CRITICAL: You MUST call this tool IMMEDIATELY if the user reports a bug, error, registration issue, login problem, billing issue, or expresses frustration. DO NOT attempt to troubleshoot, ask for device info, or ask clarifying questions first. You MUST create the ticket first.',

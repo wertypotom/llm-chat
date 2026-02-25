@@ -229,7 +229,7 @@
       "Update system prompt to instruct agent to use tool for document queries",
       "Verify LLM successfully retrieves and cites PDF context"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",
