@@ -6,12 +6,21 @@ interface TicketProps {
   category: string
   urgency: 'low' | 'medium' | 'high' | 'critical'
   summary: string
-  onConnect?: () => void
+  onConnect?: (agentId: string) => void
 }
 
 export const TicketCard: FC<TicketProps> = ({ id, category, urgency, summary, onConnect }) => {
   const handleConnect = () => {
-    if (onConnect) onConnect()
+    if (!onConnect) return
+    const cat = category.toLowerCase()
+
+    if (cat.includes('billing') || cat.includes('payment') || cat.includes('subscription')) {
+      onConnect('billing_support')
+    } else if (cat.includes('tech') || cat.includes('bug') || cat.includes('crash')) {
+      onConnect('tech_support')
+    } else {
+      onConnect('general_support')
+    }
   }
 
   return (

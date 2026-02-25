@@ -10,7 +10,7 @@ import styles from './MessageBubble.module.css'
 interface Props {
   role: MessageRole | string
   content: string
-  onConnectSupport?: () => void
+  onConnectSupport?: (agentId: string) => void
 }
 
 export const MessageBubble: FC<Props> = ({ role, content, onConnectSupport }) => {
@@ -26,7 +26,7 @@ export const MessageBubble: FC<Props> = ({ role, content, onConnectSupport }) =>
       if (match && match[1] === 'ticket') {
         try {
           const data = JSON.parse(raw.trim())
-          return <TicketCard {...data} onConnect={onConnectSupport} />
+          return <TicketCard {...data} onConnect={(agentId) => onConnectSupport?.(agentId)} />
         } catch (e) {
           console.error('Failed to parse ticket JSON:', e)
         }
@@ -37,7 +37,7 @@ export const MessageBubble: FC<Props> = ({ role, content, onConnectSupport }) =>
         try {
           const jsonStr = raw.replace(/^ticket\s*/, '').trim()
           const data = JSON.parse(jsonStr)
-          return <TicketCard {...data} onConnect={onConnectSupport} />
+          return <TicketCard {...data} onConnect={(agentId) => onConnectSupport?.(agentId)} />
         } catch (e) {
           console.error('Failed to parse inline ticket JSON:', e)
         }
@@ -67,7 +67,7 @@ export const MessageBubble: FC<Props> = ({ role, content, onConnectSupport }) =>
           return (
             <div className={props.className}>
               {before && <p>{before}</p>}
-              <TicketCard {...data} onConnect={onConnectSupport} />
+              <TicketCard {...data} onConnect={(agentId) => onConnectSupport?.(agentId)} />
               {after && <p>{after.replace(/^```/, '')}</p>} {/* strip trailing backticks if any */}
             </div>
           )

@@ -29,6 +29,7 @@ export function useAgents() {
   }, [])
 
   const allAgents = [...PRESET_AGENTS, ...customAgents]
+  const visibleAgents = allAgents.filter((a) => !a.isHidden)
   const activeAgent = allAgents.find((a) => a.id === activeId) ?? PRESET_AGENTS[0]
 
   const saveActive = useCallback((id: string) => {
@@ -69,6 +70,7 @@ export function useAgents() {
   return {
     isMounted,
     agents: allAgents,
+    visibleAgents,
     customAgents,
     activeAgent,
     activeId,

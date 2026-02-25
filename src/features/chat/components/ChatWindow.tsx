@@ -41,7 +41,7 @@ export function ChatWindow({
 
   const { modelId, setModelId } = useGlobalModel()
   const {
-    agents,
+    visibleAgents,
     customAgents,
     activeAgent,
     activeId: activeAgentId,
@@ -148,7 +148,8 @@ export function ChatWindow({
                 disabled={isLoading}
               />
               <AgentSelector
-                agents={agents}
+                agents={visibleAgents}
+                activeAgent={activeAgent}
                 value={activeAgentId}
                 disabled={isLoading}
                 onChange={(id) => {
@@ -177,7 +178,7 @@ export function ChatWindow({
               key={m.id}
               role={m.role}
               content={m.content}
-              onConnectSupport={() => setActiveAgentId('support')}
+              onConnectSupport={(agentId) => setActiveAgentId(agentId)}
             />
           ))}
           {isLoading && messages.at(-1)?.role !== 'assistant' && <TypingIndicator />}
