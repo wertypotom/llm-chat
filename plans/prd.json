@@ -163,7 +163,7 @@
       "UI to switch active agent",
       "Pass selected agent's system prompt to /api/chat"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",

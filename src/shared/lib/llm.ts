@@ -48,8 +48,7 @@ export const llmProvider = createOpenAICompatible({
   fetch: abacusFetch,
 })
 
-export const SYSTEM_PROMPT = `You are a helpful, intelligent assistant with access to Zapier MCP tools for Google Drive and Google Sheets.
-
+const REQUIRED_TOOL_INSTRUCTIONS = `
 Available capabilities:
 - Google Drive: list files/folders, rename files and folders
 - Google Sheets: create rows, columns, spreadsheets, worksheets; update and lookup rows
@@ -63,3 +62,10 @@ CRITICAL RULES FOR USING ZAPIER TOOLS:
 - Never call a tool with empty arguments.
 - If Zapier returns a followUpQuestion, call the tool again with more specific instructions addressing that question.
 - Be concise and conversational.`
+
+export function getSystemPrompt(customPrompt?: string): string {
+  const base =
+    customPrompt ||
+    'You are a helpful, intelligent assistant with access to Zapier MCP tools for Google Drive and Google Sheets.'
+  return `${base}\n${REQUIRED_TOOL_INSTRUCTIONS}`
+}

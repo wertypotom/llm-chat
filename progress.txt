@@ -111,3 +111,14 @@ NEXT: Task 12 — Security hardening (env validation, rate limiting)
 - Typecheck passed, Lint passed, tested persistence.
 
 NEXT: Prompt & Agent Management (Task 14)
+
+
+[2026-02-24] Task 14 COMPLETE: Prompt & Agent Management
+- src/features/chat/types/index.ts — Agent interface
+- src/shared/lib/agents.ts — PRESET_AGENTS
+- src/features/chat/hooks/useAgents.ts — state/localStorage for custom agents + active selection
+- src/features/chat/components/AgentSelector.tsx + AgentSettingsModal.tsx — UI for agent selection & CRUD
+- src/app/api/chat/route.ts + src/shared/lib/llm.ts — append required Zapier tools instructions to custom prompts
+- Typecheck passed, Lint passed, UI tested.
+
+NEXT: Support Automation (Task 15)

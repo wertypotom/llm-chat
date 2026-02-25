@@ -13,3 +13,9 @@ export interface ChatSession {
   createdAt: Date
   updatedAt: Date
 }
+
+export interface Agent {
+  id: string
+  name: string
+  systemPrompt?: string
+}

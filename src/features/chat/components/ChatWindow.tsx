@@ -10,8 +10,11 @@ import { ChatInput } from './ChatInput'
 import { TypingIndicator } from './TypingIndicator'
 import { Sidebar } from './Sidebar'
 import { ModelSelector } from './ModelSelector'
+import { AgentSelector } from './AgentSelector'
+import { AgentSettingsModal } from './AgentSettingsModal'
 import { useGlobalModel } from '@/features/chat/hooks/useGlobalModel'
 import { AVAILABLE_MODELS } from '@/shared/lib/models'
+import { useAgents } from '@/features/chat/hooks/useAgents'
 import styles from './ChatWindow.module.css'
 
 interface Props {
@@ -34,13 +37,26 @@ export function ChatWindow({
   const bottomRef = useRef<HTMLDivElement>(null)
   const prevLoadingRef = useRef(false)
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [showAgentModal, setShowAgentModal] = useState(false)
 
   const { modelId, setModelId } = useGlobalModel()
+  const {
+    agents,
+    customAgents,
+    activeAgent,
+    activeId: activeAgentId,
+    setActiveId: setActiveAgentId,
+    addAgent,
+    updateAgent,
+    deleteAgent,
+    isMounted,
+  } = useAgents()
 
   const { messages, input, setInput, isLoading, error, sendMessage } = useChatStream({
     initialMessages: session.messages,
     onMessagesChange,
     modelId,
+    systemPrompt: activeAgent?.systemPrompt,
   })
 
   const { speak } = useTTS()
@@ -123,12 +139,25 @@ export function ChatWindow({
             </svg>
           </div>
           <h1 className={styles.title}>LLM Chat</h1>
-          <ModelSelector
-            models={AVAILABLE_MODELS}
-            value={modelId}
-            onChange={setModelId}
-            disabled={isLoading}
-          />
+          {isMounted && (
+            <div style={{ display: 'flex', gap: '0.5rem' }}>
+              <ModelSelector
+                models={AVAILABLE_MODELS}
+                value={modelId}
+                onChange={setModelId}
+                disabled={isLoading}
+              />
+              <AgentSelector
+                agents={agents}
+                value={activeAgentId}
+                disabled={isLoading}
+                onChange={(id) => {
+                  if (id === 'manage') setShowAgentModal(true)
+                  else setActiveAgentId(id)
+                }}
+              />
+            </div>
+          )}
           <button
             className={`${styles.autoPlayBtn} ${autoPlay ? styles.autoPlayBtnOn : ''}`}
             onClick={toggleAutoPlay}
@@ -158,6 +187,16 @@ export function ChatWindow({
           isLoading={isLoading}
         />
       </div>
+
+      {showAgentModal && (
+        <AgentSettingsModal
+          customAgents={customAgents}
+          onClose={() => setShowAgentModal(false)}
+          onAdd={addAgent}
+          onUpdate={updateAgent}
+          onDelete={deleteAgent}
+        />
+      )}
     </div>
   )
 }
