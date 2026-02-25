@@ -92,7 +92,7 @@
       "Add speaker icon button on each assistant MessageBubble to trigger TTS",
       "Verify: clicking speaker plays audible speech"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",

@@ -53,3 +53,11 @@ NEXT: Testing/Verifying tools and Task 6 (Specific Google Sheets MCP Tool)
 - Typecheck ✓
 
 NEXT: Task 7 — Google Drive file read/update via MCP/Zapier
+
+[2026-02-24] Task 8 COMPLETE: ElevenLabs TTS
+- src/app/api/tts/route.ts — POST proxy to ElevenLabs stream, zod validation, ELEVENLABS_API_KEY
+- src/features/chat/hooks/useTTS.ts — speak/stop/isPlaying, blob URL, Audio element
+- MessageBubble.tsx — speaker button on assistant bubbles, toggles play/stop
+- Typecheck ✓, Lint ✓, Tests ✓
+
+NEXT: Task 9 — Auto-play TTS mode toggle
