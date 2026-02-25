@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import type { ChatSession, ChatMessage } from '@/features/chat/types'
 import { loadSessions, saveSessions, loadActiveId, saveActiveId } from '@/features/chat/lib/storage'
 
@@ -25,8 +25,18 @@ function getInitialState(): { sessions: ChatSession[]; activeId: string } {
 }
 
 export function useChatHistory() {
-  const [{ sessions, activeId }, setState] = useState(getInitialState)
+  const [isMounted, setIsMounted] = useState(false)
+  const [state, setState] = useState<{ sessions: ChatSession[]; activeId: string }>(() => {
+    const s = createSession()
+    return { sessions: [s], activeId: s.id }
+  })
 
+  useEffect(() => {
+    setState(getInitialState())
+    setIsMounted(true)
+  }, [])
+
+  const { sessions, activeId } = state
   const activeSession = sessions.find((s) => s.id === activeId) ?? sessions[0]
 
   const persist = useCallback((next: ChatSession[], nextId: string) => {
@@ -57,5 +67,5 @@ export function useChatHistory() {
     [sessions],
   )
 
-  return { sessions, activeId, activeSession, newSession, selectSession, updateSession }
+  return { isMounted, sessions, activeId, activeSession, newSession, selectSession, updateSession }
 }

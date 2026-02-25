@@ -4,8 +4,10 @@ import { ChatWindow } from '@/features/chat/components/ChatWindow'
 import { useChatHistory } from '@/features/chat/hooks/useChatHistory'
 
 export default function Home() {
-  const { sessions, activeId, activeSession, newSession, selectSession, updateSession } =
+  const { isMounted, sessions, activeId, activeSession, newSession, selectSession, updateSession } =
     useChatHistory()
+
+  if (!isMounted) return null
 
   return (
     <ChatWindow

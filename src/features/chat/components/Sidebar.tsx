@@ -60,7 +60,9 @@ export const Sidebar: FC<Props> = ({ sessions, activeId, onSelect, onNew, open }
             onKeyDown={(e) => e.key === 'Enter' && onSelect(s.id)}
           >
             <span className={styles.itemTitle}>{sessionTitle(s)}</span>
-            <span className={styles.itemTime}>{relativeTime(s.updatedAt)}</span>
+            <span className={styles.itemTime} suppressHydrationWarning>
+              {relativeTime(s.updatedAt)}
+            </span>
           </li>
         ))}
       </ul>
