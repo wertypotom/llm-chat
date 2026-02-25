@@ -14,6 +14,7 @@ interface TTSState {
 let audioContext: AudioContext | null = null
 let sourceNode: MediaElementAudioSourceNode | null = null
 let audioEl: HTMLAudioElement | null = null
+let currentUrl: string | null = null
 
 const initAudio = () => {
   if (typeof window === 'undefined') return { ctx: null, audio: null, analyser: null }
@@ -50,7 +51,11 @@ export const useTTS = create<TTSState>()((set, get) => ({
   stop: () => {
     if (audioEl) {
       audioEl.pause()
-      audioEl.src = ''
+      audioEl.currentTime = 0
+    }
+    if (currentUrl) {
+      URL.revokeObjectURL(currentUrl)
+      currentUrl = null
     }
     set({ isPlaying: false, playingId: null })
   },
@@ -71,26 +76,42 @@ export const useTTS = create<TTSState>()((set, get) => ({
       if (!res.ok) throw new Error(`TTS error ${res.status}`)
 
       const blob = await res.blob()
+
+      // Stop execution if user clicked Stop while we were fetching
+      if (get().playingId !== messageId) {
+        return
+      }
+
       const url = URL.createObjectURL(blob)
 
       const { ctx, audio, analyser: newAnalyser } = initAudio()
-      if (!audio || !ctx) throw new Error('Audio not supported')
+      if (!audio || !ctx) {
+        URL.revokeObjectURL(url)
+        throw new Error('Audio not supported')
+      }
 
       // If we created a new analyser node, save it to state
       if (newAnalyser) {
         set({ analyser: newAnalyser })
       }
 
+      currentUrl = url
       audio.src = url
 
       audio.onended = () => {
-        URL.revokeObjectURL(url)
-        set({ isPlaying: false, playingId: null })
+        if (currentUrl === url) {
+          URL.revokeObjectURL(url)
+          currentUrl = null
+          set({ isPlaying: false, playingId: null })
+        }
       }
 
       audio.onerror = () => {
-        URL.revokeObjectURL(url)
-        set({ isPlaying: false, playingId: null })
+        if (currentUrl === url) {
+          URL.revokeObjectURL(url)
+          currentUrl = null
+          set({ isPlaying: false, playingId: null })
+        }
       }
 
       if (ctx.state === 'suspended') {
@@ -100,7 +121,9 @@ export const useTTS = create<TTSState>()((set, get) => ({
       await audio.play()
     } catch (err) {
       console.error('Playback failed', err)
-      set({ isPlaying: false, playingId: null })
+      if (get().playingId === messageId) {
+        set({ isPlaying: false, playingId: null })
+      }
     }
   },
 }))
