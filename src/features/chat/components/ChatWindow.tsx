@@ -11,7 +11,7 @@ import styles from './ChatWindow.module.css'
 
 export function ChatWindow() {
   const bottomRef = useRef<HTMLDivElement>(null)
-  const prevCountRef = useRef(0)
+  const prevLoadingRef = useRef(false)
   const { messages, input, setInput, isLoading, error, sendMessage } = useChatStream()
   const { speak } = useTTS()
   const { autoPlay, toggleAutoPlay } = useAutoPlayTTS()
@@ -20,20 +20,21 @@ export function ChatWindow() {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages, isLoading])
 
-  // Auto-play TTS when a new assistant message arrives
+  // Auto-play TTS on stream completion (isLoading: true → false)
   useEffect(() => {
     if (!autoPlay) {
-      prevCountRef.current = messages.length
+      prevLoadingRef.current = isLoading
       return
     }
-    if (messages.length > prevCountRef.current) {
+    // Stream just finished
+    if (!isLoading && prevLoadingRef.current) {
       const last = messages[messages.length - 1]
-      if (last?.role === 'assistant' && last.content && !isLoading) {
+      if (last?.role === 'assistant' && last.content) {
         speak(last.content)
       }
     }
-    prevCountRef.current = messages.length
-  }, [messages, isLoading, autoPlay, speak])
+    prevLoadingRef.current = isLoading
+  }, [isLoading, autoPlay, messages, speak])
 
   const handleInputChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
     setInput(e.target.value)
