@@ -1,10 +1,36 @@
+.layout {
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+}
+
 .root {
   display: flex;
   flex-direction: column;
-  height: 100vh;
-  max-width: 860px;
-  margin: 0 auto;
+  flex: 1;
+  min-width: 0;
   background: var(--color-bg);
+}
+
+.menuBtn {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  transition:
+    color 0.15s,
+    background 0.15s;
+  flex-shrink: 0;
+}
+.menuBtn:hover {
+  color: var(--color-text);
+  background: rgba(255, 255, 255, 0.06);
 }
 
 /* Glassmorphism header */

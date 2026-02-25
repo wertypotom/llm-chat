@@ -80,3 +80,14 @@ NEXT: Task 10 — Premium dark-mode UI with micro-animations
 - Typecheck ✓, Lint ✓
 
 NEXT: Task 11 — Conversation history in localStorage
+
+[2026-02-24] Task 11 COMPLETE: Conversation history with sidebar
+- src/features/chat/lib/storage.ts — localStorage save/load for sessions + activeId
+- src/features/chat/hooks/useChatHistory.ts — session CRUD, default session init
+- src/features/chat/components/Sidebar.tsx+CSS — collapsible (0→240px), session list, New chat btn
+- src/features/chat/hooks/useChatStream.ts — initialMessages + onMessagesChange params
+- ChatWindow.tsx — sidebar + hamburger toggle, session props
+- src/app/page.tsx — useChatHistory wired as root
+- Typecheck ✓, Lint ✓
+
+NEXT: Task 12 — Security hardening (env validation, rate limiting)

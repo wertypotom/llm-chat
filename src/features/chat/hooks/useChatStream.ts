@@ -12,8 +12,13 @@ interface UseChatStreamReturn {
   sendMessage: (text: string) => Promise<void>
 }
 
-export function useChatStream(): UseChatStreamReturn {
-  const [messages, setMessages] = useState<ChatMessage[]>([])
+interface UseChatStreamOptions {
+  initialMessages?: ChatMessage[]
+  onMessagesChange?: (messages: ChatMessage[]) => void
+}
+
+export function useChatStream(options: UseChatStreamOptions = {}): UseChatStreamReturn {
+  const [messages, setMessages] = useState<ChatMessage[]>(options.initialMessages ?? [])
   const [input, setInput] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -94,9 +99,17 @@ export function useChatStream(): UseChatStreamReturn {
         // If stream ended with no text content (all steps were tool calls),
         // replace placeholder with a generic done message
         if (firstChunk) {
-          setMessages((prev) =>
-            prev.map((m) => (m.id === assistantId ? { ...m, content: '✅ Done.' } : m)),
-          )
+          setMessages((prev) => {
+            const next = prev.map((m) => (m.id === assistantId ? { ...m, content: '✅ Done.' } : m))
+            options.onMessagesChange?.(next)
+            return next
+          })
+        } else {
+          // Notify parent with final messages after stream completes
+          setMessages((prev) => {
+            options.onMessagesChange?.(prev)
+            return prev
+          })
         }
       } catch (err) {
         if (err instanceof Error && err.name !== 'AbortError') {
@@ -108,7 +121,7 @@ export function useChatStream(): UseChatStreamReturn {
         setIsLoading(false)
       }
     },
-    [messages, isLoading],
+    [messages, isLoading, options],
   )
 
   return { messages, input, setInput, isLoading, error, sendMessage }

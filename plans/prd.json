@@ -129,7 +129,7 @@
       "New chat button creates fresh session",
       "Verify: refresh page, history restored"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "infrastructure",
