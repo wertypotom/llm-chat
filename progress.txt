@@ -162,3 +162,12 @@ NEXT: RAG Phase 1 - Setup LlamaIndex & Vector DB
 - Created `src/shared/lib/rag-config.ts` configuring LlamaIndex with OpenAI embeddings (1536 dims)
 - User executed Supabase SQL to enable pgvector, create `documents` table, and setup similarity search
 - Typecheck ✓, Lint ✓, Build ✓
+
+NEXT: RAG Phase 2 - PDF Parsing and Ingestion
+
+[2026-02-25] RAG Phase 2 COMPLETE: PDF Parsing and Ingestion
+- Configured LlamaIndex `PDFReader` via `@llamaindex/readers` package
+- Created `src/shared/lib/ingest.ts` for parsing `Buffer` data, automatically splitting via `SentenceSplitter`, and persisting to `SupabaseVectorStore`
+- Built an admin POST endpoint at `/api/admin/ingest` to handle multipart `form-data` file uploads
+- Resolved type issues with file buffers and typescript compilation.
+- Typecheck ✓, Lint ✓, Build ✓
