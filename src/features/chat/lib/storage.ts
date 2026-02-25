@@ -1,20 +1,14 @@
-import type { ChatSession } from '@/features/chat/types'
-
-const SESSIONS_KEY = 'chat:sessions'
 const ACTIVE_KEY = 'chat:activeId'
+const USER_ID_KEY = 'chat:userId' // Local key to establish a consistent pseudo-user for the web
 
-export function loadSessions(): ChatSession[] {
-  try {
-    const raw = localStorage.getItem(SESSIONS_KEY)
-    if (!raw) return []
-    return JSON.parse(raw) as ChatSession[]
-  } catch {
-    return []
+export function getUserId(): string {
+  if (typeof window === 'undefined') return 'server'
+  let userId = localStorage.getItem(USER_ID_KEY)
+  if (!userId) {
+    userId = crypto.randomUUID()
+    localStorage.setItem(USER_ID_KEY, userId)
   }
-}
-
-export function saveSessions(sessions: ChatSession[]): void {
-  localStorage.setItem(SESSIONS_KEY, JSON.stringify(sessions))
+  return userId
 }
 
 export function loadActiveId(): string | null {

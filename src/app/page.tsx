@@ -11,6 +11,7 @@ export default function Home() {
 
   return (
     <ChatWindow
+      key={activeId}
       session={activeSession}
       sessions={sessions}
       activeId={activeId}

@@ -185,7 +185,7 @@
       "Route webhook messages to existing LLM logic",
       "Format and dispatch responses back to channel"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",

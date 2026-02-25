@@ -17,6 +17,7 @@
     "@ai-sdk/openai-compatible": "^2.0.30",
     "@ai-sdk/react": "^3.0.99",
     "@modelcontextprotocol/sdk": "^1.27.0",
+    "@supabase/supabase-js": "^2.97.0",
     "ai": "^6.0.97",
     "next": "14.2.29",
     "openai": "^6.25.0",
