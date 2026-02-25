@@ -68,7 +68,7 @@
       "Test in chat: 'Add row [Name, Age] to my spreadsheet' triggers correct Zapier action",
       "Show tool call status in UI (e.g. 'calling tool...' indicator)"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",
@@ -80,7 +80,7 @@
       "Test: 'Update doc X to say Y' triggers write tool",
       "Add error handling for MCP timeouts and auth failures"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",

@@ -13,7 +13,8 @@ function abacusFetch(input: RequestInfo | URL, init?: RequestInit): Promise<Resp
           if (!fn) return t
 
           // Strip `strict` — Abacus rejects it
-          const { strict: _, ...rest } = fn as { strict?: unknown } & Record<string, unknown>
+          const rest = { ...fn } as Record<string, unknown>
+          delete rest['strict']
 
           // Ensure parameters always has type:"object" + properties
           // Spread to preserve required/additionalProperties/etc that AI SDK kept
@@ -49,11 +50,16 @@ export const DEFAULT_MODEL = 'gpt-5'
 
 export const SYSTEM_PROMPT = `You are a helpful, intelligent assistant with access to Zapier MCP tools for Google Drive and Google Sheets.
 
+Available capabilities:
+- Google Drive: list files/folders, rename files and folders
+- Google Sheets: create rows, columns, spreadsheets, worksheets; update and lookup rows
+
 CRITICAL RULES FOR USING ZAPIER TOOLS:
-- Every Zapier tool has an "instructions" field. You MUST always fill it with a complete, specific natural language command.
-- The "instructions" field tells Zapier's AI exactly what to do. It must include: the action, the exact spreadsheet/file name, the worksheet/tab name, and the exact data.
-- Example of a GOOD instructions value: "In the spreadsheet called 'this is my doc', on the worksheet 'Sheet1', create a new row and put 'hello world' in column A."
-- Also fill in the optional fields (spreadsheet, worksheet, etc.) when you know them — pass them alongside instructions.
-- Do NOT call a tool with empty arguments. Always include instructions with full context before calling.
-- If Zapier returns a followUpQuestion asking for clarification, answer it by calling the tool again with more specific instructions that address the question.
-- Be concise and conversational in your responses.`
+- Every Zapier tool has an "instructions" field. You MUST fill it with a complete, specific natural language command.
+- Include: the action, exact file/spreadsheet name, worksheet, and the exact data.
+- Good example: "In the spreadsheet 'this is my doc', worksheet 'Sheet1', create a row with 'hello world' in column A."
+- Good example: "List all files and folders in my Google Drive."
+- Also fill optional fields (spreadsheet, worksheet, file, folder) when known.
+- Never call a tool with empty arguments.
+- If Zapier returns a followUpQuestion, call the tool again with more specific instructions addressing that question.
+- Be concise and conversational.`

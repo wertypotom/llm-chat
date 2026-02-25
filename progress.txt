@@ -42,3 +42,14 @@ NEXT: MCP client for Zapier integration (Task 5)
 - Typecheck ✓, Lint ✓
 
 NEXT: Testing/Verifying tools and Task 6 (Specific Google Sheets MCP Tool)
+
+[2026-02-24] Task 6 COMPLETE: Google Sheets row-append via Zapier MCP
+- Switched SSEClientTransport → StreamableHTTPClientTransport (Zapier uses Streamable HTTP)
+- Added @ai-sdk/openai-compatible; abacusFetch wrapper strips `strict`, normalizes tool schemas
+- Separated schema caching from per-request execute functions; pass userIntent as instructions fallback
+- stopWhen: stepCountIs(3), maxDuration=300 for multi-step Abacus LLM
+- ⏳ Using tools indicator + empty-stream Done fallback in useChatStream
+- Verified: row successfully created in "this is my doc" via chat command
+- Typecheck ✓
+
+NEXT: Task 7 — Google Drive file read/update via MCP/Zapier
