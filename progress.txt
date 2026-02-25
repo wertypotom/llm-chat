@@ -61,3 +61,11 @@ NEXT: Task 7 — Google Drive file read/update via MCP/Zapier
 - Typecheck ✓, Lint ✓, Tests ✓
 
 NEXT: Task 9 — Auto-play TTS mode toggle
+
+[2026-02-24] Task 9 COMPLETE: Auto-play TTS toggle
+- src/features/chat/hooks/useAutoPlayTTS.ts — localStorage-persisted boolean
+- ChatWindow.tsx — useEffect detects new assistant messages, auto-calls speak()
+- Header: "🔊 Auto" pill button, accent-colored when ON
+- Typecheck ✓, Lint ✓, Tests ✓
+
+NEXT: Task 10 — Premium dark-mode UI with micro-animations

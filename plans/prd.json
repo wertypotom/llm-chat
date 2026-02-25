@@ -104,7 +104,7 @@
       "Persist setting to localStorage",
       "Verify: toggle ON → each reply plays; toggle OFF → silent"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "styling",
