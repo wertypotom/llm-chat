@@ -1,4 +1,4 @@
-import { VectorStoreIndex } from 'llamaindex'
+import { VectorStoreIndex, MetadataMode } from 'llamaindex'
 import { vectorStore } from './vector-store'
 import { configureLlamaIndex } from './rag-config'
 
@@ -6,33 +6,40 @@ import { configureLlamaIndex } from './rag-config'
 configureLlamaIndex()
 
 /**
- * Connects to the Supabase Vector Store and queries it using LlamaIndex.
- * @param query The user's search query
- * @returns A string containing the synthesized answer or the raw text chunks retrieved.
+ * Retrieves raw text chunks from the Supabase Vector Store.
+ * We skip LlamaIndex's built-in synthesizer (incompatible with Abacus LLM internals)
+ * and return the raw chunks — the main LLM synthesizes the answer from system prompt context.
  */
 export async function queryKnowledgeBase(query: string): Promise<string> {
+  if (!query?.trim()) return ''
   console.log(`[RAG] Searching knowledge base for: "${query}"...`)
 
   try {
     // 1. Connect to the existing Supabase Vector Store
     const index = await VectorStoreIndex.fromVectorStore(vectorStore)
 
-    // 2. Create a query engine (retriever + synthesizer)
-    // We use the default synthesizer which attempts to answer the question using the retrieved nodes.
-    const queryEngine = index.asQueryEngine({
-      retriever: index.asRetriever({ similarityTopK: 3 }),
-    })
+    // 2. Use retriever directly — skip LlamaIndex synthesizer (Abacus-incompatible)
+    const retriever = index.asRetriever({ similarityTopK: 3 })
+    // Pass as object — module duplication exposes raw _retrieve which needs { query } not string
+    const nodes = await retriever.retrieve({ query } as Parameters<typeof retriever.retrieve>[0])
 
-    // 3. Execute the query
-    const response = await queryEngine.query({ query })
+    console.log(`[RAG] Found ${nodes.length} matching source chunks.`)
 
-    console.log(`[RAG] Found ${response.sourceNodes?.length || 0} matching source chunks.`)
+    nodes.forEach((n) => console.log(`[RAG] chunk score: ${n.score?.toFixed(4)}`))
 
-    // Return the synthesized text answer to the conversational LLM.
-    // The LLM will then read this text and summarize it for the user.
-    return response.response
+    // 3. Filter by relevance
+    const SIMILARITY_THRESHOLD = 0.5
+    const relevant = nodes.filter((n) => (n.score ?? 0) >= SIMILARITY_THRESHOLD)
+    console.log(
+      `[RAG] ${relevant.length}/${nodes.length} chunks above threshold ${SIMILARITY_THRESHOLD}`,
+    )
+
+    if (relevant.length === 0) return ''
+
+    // 4. Concatenate raw text chunks
+    return relevant.map((n) => n.node.getContent(MetadataMode.NONE)).join('\n\n---\n\n')
   } catch (error) {
     console.error('[RAG] Error querying knowledge base:', error)
-    throw error // Bubble up to see the true error in local api test route
+    throw error
   }
 }

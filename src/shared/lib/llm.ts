@@ -64,19 +64,23 @@ CRITICAL RULES FOR USING ZAPIER TOOLS:
 - Be concise and conversational.
 `
 
-export function getSystemPrompt(customSystemPrompt?: string): string {
+export function getSystemPrompt(customSystemPrompt?: string, ragContext?: string): string {
   const basePrompt =
     customSystemPrompt ||
     'You are a helpful, intelligent assistant with access to Zapier MCP tools for Google Drive and Google Sheets.'
+
+  const ragSection = ragContext
+    ? `\n\n--- RETRIEVED KNOWLEDGE BASE CONTEXT ---\nThe following information was retrieved from the private knowledge base and is FACTUAL. Use it to answer the user's question directly:\n${ragContext}\n--- END CONTEXT ---`
+    : ''
 
   const toolDirectives = `
 ${REQUIRED_TOOL_INSTRUCTIONS}
 
 CRITICAL RULES:
 1. SUPPORT TICKETS: If the user describes ANY issue, bug, crash, registration failure, login problem, billing dispute, or frustration, you MUST invoke the 'createSupportTicket' tool IMMEDIATELY. DO NOT try to troubleshoot first.
-2. INTERNAL KNOWLEDGE: If the user asks about facts, weather, policies, rules, or specific data, you MUST invoke the 'searchKnowledgeBase' tool FIRST before answering to check the uploaded documents. DO NOT hallucinate answers or say you don't have access to external data.
+2. INTERNAL KNOWLEDGE BASE: You have access to a private knowledge base. If context was retrieved above, use it to answer directly. If no context was injected, call 'searchKnowledgeBase' before refusing any factual query.
 
 If you have Zapier tools available, you can use those when specifically asked to draft emails or check calendars.`
 
-  return `${basePrompt}${toolDirectives}`
+  return `${basePrompt}${ragSection}${toolDirectives}`
 }

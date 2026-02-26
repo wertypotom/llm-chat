@@ -35,7 +35,7 @@ async function getMCPToolsMeta(client: Client): Promise<MCPToolMeta[]> {
 
   mcpToolsMetaCache = mcpTools.map((mcpTool) => {
     const raw = mcpTool.inputSchema as Record<string, unknown>
-    console.log(`[MCP] tool="${mcpTool.name}" inputSchema=`, JSON.stringify(raw))
+    console.log(`[MCP] tool="${mcpTool.name}"`)
 
     const props = (raw?.['properties'] ?? {}) as Record<string, JSONSchema7>
 
@@ -90,9 +90,9 @@ export async function getAI_SDKTools(
               : `Execute ${meta.name} with parameters: ${JSON.stringify(argsObj)}`
           }
 
-          console.log(`[MCP] calling tool="${meta.name}" args=`, JSON.stringify(argsObj))
+          console.log(`[MCP] calling tool="${meta.name}"`)
           const result = await client.callTool({ name: meta.name, arguments: argsObj })
-          console.log(`[MCP] tool="${meta.name}" result=`, JSON.stringify(result.content))
+          console.log(`[MCP] tool="${meta.name}"`)
           return result.content
         } catch (error) {
           console.error(`[MCP] tool="${meta.name}" FAILED:`, error)

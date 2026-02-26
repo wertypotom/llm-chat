@@ -16,6 +16,16 @@ const requestSchema = z.object({
   systemPrompt: z.string().optional(),
 })
 
+const createSupportTicketParameters = z.object({
+  category: z
+    .string()
+    .describe('The category of the issue, e.g., "Technical", "Billing", "General Inquiry"'),
+  urgency: z
+    .enum(['low', 'medium', 'high', 'critical'])
+    .describe('The urgency level of the issue based on user tone and impact'),
+  summary: z.string().describe('A concise summary of the issue (1-2 sentences)'),
+})
+
 export async function POST(req: Request) {
   // Rate limiting
   const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? 'unknown'
@@ -31,37 +41,46 @@ export async function POST(req: Request) {
     const body = await req.json()
     const { messages, model, systemPrompt } = requestSchema.parse(body)
 
-    const createSupportTicketParameters = z.object({
-      category: z
-        .string()
-        .describe('The category of the issue, e.g., "Technical", "Billing", "General Inquiry"'),
-      urgency: z
-        .enum(['low', 'medium', 'high', 'critical'])
-        .describe('The urgency level of the issue based on user tone and impact'),
-      summary: z.string().describe('A concise summary of the issue (1-2 sentences)'),
-    })
+    // Extract the last user message text (handles string or multi-part array content)
+    const lastUserMsg = [...messages].reverse().find((m) => m['role'] === 'user')
+    const rawContent = lastUserMsg?.['content']
+    const userQuery =
+      typeof rawContent === 'string'
+        ? rawContent
+        : Array.isArray(rawContent)
+          ? (((
+              rawContent.find((p: Record<string, unknown>) => p['type'] === 'text') as Record<
+                string,
+                unknown
+              >
+            )?.['text'] as string) ?? '')
+          : ''
 
-    // The instruction implies that `Record<string, unknown>` might cause an error,
-    // and if so, we should revert to `any` and add the eslint-disable comment.
-    // Since the provided "Code Edit" snippet already includes the eslint-disable
-    // comment with `any`, we'll assume the intent is to keep `any` for `tools`
-    // and disable the linter for it, as `unknown` would likely cause issues
-    // when merging with `zapierTools` which might be `any`.
+    // Run RAG + MCP init in parallel.
+    // MCP cold-start can take 50s — cap at 10s so it never blocks the LLM call.
+    const [ragResult, mcpResult] = await Promise.allSettled([
+      userQuery
+        ? queryKnowledgeBase(userQuery).catch((e) => {
+            console.error('[RAG] failed:', e)
+            return ''
+          })
+        : Promise.resolve(''),
+      Promise.race([
+        getZapierMCPClient()
+          .then((client) => getAI_SDKTools(client, userQuery))
+          .catch((e) => {
+            console.error('MCP failed:', e)
+            return null
+          }),
+        new Promise<null>((resolve) => setTimeout(() => resolve(null), 10_000)),
+      ]),
+    ])
+
+    const ragContext = ragResult.status === 'fulfilled' ? ragResult.value : ''
+    if (ragContext) console.log('[RAG] Pre-injected context length:', ragContext.length)
+
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let tools: Record<string, any> = {
-      searchKnowledgeBase: tool({
-        description:
-          'Search the internal knowledge base (uploaded PDFs and documents) for facts, policies, instructions, rules, and local information (e.g., specific weather or guidelines stored in the database). Call this tool whenever asked for specific information that might be in the provided context.',
-        parameters: z.object({
-          query: z
-            .string()
-            .describe('The specific question or search query to find in the documents.'),
-        }),
-        // @ts-expect-error type inference bug in AI SDK / zod
-        execute: async ({ query }) => {
-          return await queryKnowledgeBase(query)
-        },
-      }),
       createSupportTicket: tool({
         description:
           'CRITICAL: You MUST call this tool IMMEDIATELY if the user reports a bug, error, registration issue, login problem, billing issue, or expresses frustration. DO NOT attempt to troubleshoot, ask for device info, or ask clarifying questions first. You MUST create the ticket first.',
@@ -79,22 +98,18 @@ Tell the user you have filed a ticket and they can connect to a robust support a
       }),
     }
 
-    try {
-      const client = await getZapierMCPClient()
-      const lastUserMsg = [...messages].reverse().find((m) => m['role'] === 'user')
-      const userIntent = (lastUserMsg?.['content'] as string) ?? ''
-      const zapierTools = await getAI_SDKTools(client, userIntent)
-      tools = { ...tools, ...zapierTools }
-    } catch (e) {
-      console.error('Failed to initialize MCP tools:', e)
-    }
+    const zapierTools = mcpResult.status === 'fulfilled' ? mcpResult.value : null
+    if (zapierTools) tools = { ...tools, ...zapierTools }
 
     const result = await streamText({
       model: llmProvider(model || DEFAULT_MODEL_ID),
-      system: getSystemPrompt(systemPrompt),
+      system: getSystemPrompt(systemPrompt, ragContext),
       messages: messages as ModelMessage[],
       tools: Object.keys(tools).length > 0 ? tools : undefined,
       stopWhen: stepCountIs(3),
+      onFinish: ({ text, finishReason }) => {
+        console.log(`[LLM] finish reason: ${finishReason}, text length: ${text.length}`)
+      },
     })
 
     return result.toTextStreamResponse({
