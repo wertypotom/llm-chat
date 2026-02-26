@@ -177,3 +177,10 @@ RAG Phase 3 - Agent Query Tool (Completed)
 - Configured LlamaIndex to query the Supabase Vector Store
 - Injected the searchKnowledgeBase tool into the Vercel AI SDK tools record inside api/chat/route.ts
 - Passed typechecks and linter
+
+[2026-02-26] Summarization Phase 1 COMPLETE: Map-Reduce Logic
+- src/shared/lib/summarize.ts — summarizeDocument(text) via SentenceSplitter chunking + batched parallel map (5 concurrent) + reduce LLM call
+- src/shared/lib/summarize.test.ts — 4 unit tests (empty guard, single-chunk, multi-chunk N+1 calls, reduce prompt content) ✓
+- Typecheck ✓, Lint ✓, Tests 4/4 ✓
+
+NEXT: Summarization Phase 2 - API & UI Integration

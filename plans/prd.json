@@ -239,7 +239,7 @@
       "Create individual LLM prompts for chunk summaries and final merged summary",
       "Handle token limits and rate limits during parallel chunk processing"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",
