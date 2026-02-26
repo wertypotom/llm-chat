@@ -43,11 +43,11 @@ describe('summarizeDocument', () => {
   })
 
   it('single chunk: calls generateText once (skips reduce)', async () => {
-    // Override SentenceSplitter to return a single chunk
-    const { SentenceSplitter } = require('llamaindex')
-    SentenceSplitter.mockImplementationOnce(() => ({
-      splitText: () => ['Only one chunk here'],
-    }))
+    // Override SentenceSplitter to return a single chunk for this test
+    const { SentenceSplitter } = await import('llamaindex')
+    jest
+      .mocked(SentenceSplitter)
+      .mockImplementationOnce(() => ({ splitText: () => ['Only one chunk here'] }) as never)
 
     mockGenerateText.mockResolvedValueOnce({ text: 'Summary of single chunk' } as Awaited<
       ReturnType<typeof generateText>

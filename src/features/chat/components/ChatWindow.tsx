@@ -12,6 +12,7 @@ import { Sidebar } from './Sidebar'
 import { ModelSelector } from './ModelSelector'
 import { AgentSelector } from './AgentSelector'
 import { AgentSettingsModal } from './AgentSettingsModal'
+import { SummarizePanel } from './SummarizePanel'
 import { useGlobalModel } from '@/features/chat/hooks/useGlobalModel'
 import { AVAILABLE_MODELS } from '@/shared/lib/models'
 import { useAgents } from '@/features/chat/hooks/useAgents'
@@ -38,6 +39,7 @@ export function ChatWindow({
   const prevLoadingRef = useRef(false)
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [showAgentModal, setShowAgentModal] = useState(false)
+  const [showSummarize, setShowSummarize] = useState(false)
 
   const { modelId, setModelId } = useGlobalModel()
   const {
@@ -167,7 +169,17 @@ export function ChatWindow({
           >
             Auto-play
           </button>
+          <button
+            className={`${styles.autoPlayBtn} ${showSummarize ? styles.autoPlayBtnOn : ''}`}
+            onClick={() => setShowSummarize((v) => !v)}
+            title="Summarize a document"
+            aria-pressed={showSummarize}
+          >
+            📄 Summarize
+          </button>
         </header>
+
+        {showSummarize && <SummarizePanel />}
 
         <div className={styles.messages} role="log" aria-live="polite">
           {messages.length === 0 && (

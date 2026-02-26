@@ -250,7 +250,7 @@
       "Display streaming or segmented summary results in the chat",
       "Verify end-to-end summarization accuracy on a sample large document"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "infrastructure",

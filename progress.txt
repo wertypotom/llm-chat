@@ -184,3 +184,12 @@ RAG Phase 3 - Agent Query Tool (Completed)
 - Typecheck ✓, Lint ✓, Tests 4/4 ✓
 
 NEXT: Summarization Phase 2 - API & UI Integration
+
+[2026-02-26] Summarization Phase 2 COMPLETE: API & UI Integration
+- src/app/api/summarize/route.ts — POST multipart/form-data, PDF/txt extraction, calls summarizeDocument(), returns { summary }
+- src/features/chat/components/SummarizePanel.tsx — drag-and-drop file upload, spinner, markdown result, copy button
+- src/features/chat/components/SummarizePanel.module.css — glassmorphism panel, animated drop zone
+- src/features/chat/components/ChatWindow.tsx — "📄 Summarize" header toggle button
+- Typecheck ✓, Lint ✓, Tests 4/4 ✓
+
+NEXT: Multi-Agent Phase 1 - Orchestration Setup
