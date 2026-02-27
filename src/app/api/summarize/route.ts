@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { PDFReader } from '@llamaindex/readers/pdf'
 import { summarizeDocument } from '@/shared/lib/summarize'
 
 export const maxDuration = 300
 
+// pdf-parse (albertcui/pdf-parse) — exports a single async function: pdf(buffer) => { text }
+// eslint-disable-next-line @typescript-eslint/no-require-imports
 export async function POST(req: NextRequest) {
   try {
     const formData = await req.formData()
@@ -23,10 +24,13 @@ export async function POST(req: NextRequest) {
     let text: string
 
     if (isPDF) {
-      const reader = new PDFReader()
-      const uint8Array = new Uint8Array(await file.arrayBuffer())
-      const docs = await reader.loadDataAsContent(uint8Array)
-      text = docs.map((d: { text: string }) => d.text).join('\n\n')
+      const buffer = Buffer.from(await file.arrayBuffer())
+
+      const { PDFParse } = require('pdf-parse')
+      const parser = new PDFParse({ data: buffer })
+      const result = await parser.getText()
+      text = result.text
+      await parser.destroy()
     } else {
       text = await file.text()
     }
