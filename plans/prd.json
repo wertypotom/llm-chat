@@ -261,7 +261,7 @@
       "Implement the internal message passing loop between agents",
       "Add stop conditions so agents don't loop endlessly"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",

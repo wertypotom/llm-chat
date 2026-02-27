@@ -21,3 +21,25 @@ export interface Agent {
   isHidden?: boolean
   voiceId?: string
 }
+
+// Multi-agent orchestration types
+export type AgentRole = 'researcher' | 'reviewer' | 'responder'
+
+export interface AgentPersona {
+  id: string
+  name: string
+  role: AgentRole
+  systemPrompt: string
+}
+
+export interface AgentMessage {
+  agentId: string
+  agentName: string
+  role: AgentRole
+  content: string
+}
+
+export interface OrchestrationResult {
+  finalAnswer: string
+  agentMessages: AgentMessage[]
+}
