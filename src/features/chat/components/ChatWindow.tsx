@@ -61,6 +61,7 @@ export function ChatWindow({
     onMessagesChange,
     modelId,
     systemPrompt: activeAgent?.systemPrompt,
+    agentId: activeAgent?.id,
   })
 
   const { speak } = useTTS()

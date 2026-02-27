@@ -26,7 +26,8 @@ export async function POST(req: NextRequest) {
     if (isPDF) {
       const buffer = Buffer.from(await file.arrayBuffer())
 
-      const { PDFParse } = require('pdf-parse')
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      const PDFParse = eval("require('pdf-parse')")
       const parser = new PDFParse({ data: buffer })
       const result = await parser.getText()
       text = result.text

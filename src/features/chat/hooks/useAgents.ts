@@ -11,7 +11,7 @@ const ACTIVE_AGENT_KEY = 'chat:activeAgentId'
 export function useAgents() {
   const [isMounted, setIsMounted] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
-  const [customAgents, setCustomAgents] = useState<Agent[]>([])
+  const [agents, setAgents] = useState<Agent[]>([])
   const [activeId, setActiveId] = useState<string>(PRESET_AGENTS[0].id)
 
   useEffect(() => {
@@ -28,7 +28,23 @@ export function useAgents() {
             isHidden: row.is_hidden,
             voiceId: row.voice_id,
           }))
-          setCustomAgents(loadedAgents)
+          setAgents(loadedAgents)
+        } else {
+          // DB is empty, seed with presets
+          const { error: seedError } = await supabase.from('agents').insert(
+            PRESET_AGENTS.map((a) => ({
+              id: a.id,
+              user_id: userId,
+              name: a.name,
+              system_prompt: a.systemPrompt,
+              is_hidden: a.isHidden || false,
+              voice_id: a.voiceId,
+            })),
+          )
+          if (seedError) {
+            console.error('Failed to seed agents to Supabase:', seedError)
+          }
+          setAgents(PRESET_AGENTS)
         }
 
         const savedId = localStorage.getItem(ACTIVE_AGENT_KEY)
@@ -45,9 +61,8 @@ export function useAgents() {
     fetchAgents()
   }, [])
 
-  const allAgents = [...PRESET_AGENTS, ...customAgents]
-  const visibleAgents = allAgents.filter((a) => !a.isHidden)
-  const activeAgent = allAgents.find((a) => a.id === activeId) ?? PRESET_AGENTS[0]
+  const visibleAgents = agents.filter((a) => !a.isHidden)
+  const activeAgent = agents.find((a) => a.id === activeId) ?? agents[0] ?? PRESET_AGENTS[0]
 
   const saveActive = useCallback((id: string) => {
     setActiveId(id)
@@ -56,8 +71,8 @@ export function useAgents() {
 
   const addAgent = useCallback(
     async (agent: Agent) => {
-      const next = [...customAgents, agent]
-      setCustomAgents(next)
+      const next = [...agents, agent]
+      setAgents(next)
 
       const userId = getUserId()
       const { error } = await supabase.from('agents').insert({
@@ -70,13 +85,13 @@ export function useAgents() {
       })
       if (error) console.error(error)
     },
-    [customAgents],
+    [agents],
   )
 
   const updateAgent = useCallback(
     async (id: string, updates: Partial<Agent>) => {
-      const next = customAgents.map((a) => (a.id === id ? { ...a, ...updates } : a))
-      setCustomAgents(next)
+      const next = agents.map((a) => (a.id === id ? { ...a, ...updates } : a))
+      setAgents(next)
 
       const userId = getUserId()
       const agentToUpdate = next.find((a) => a.id === id)
@@ -95,13 +110,13 @@ export function useAgents() {
         if (error) console.error(error)
       }
     },
-    [customAgents],
+    [agents],
   )
 
   const deleteAgent = useCallback(
     async (id: string) => {
-      const next = customAgents.filter((a) => a.id !== id)
-      setCustomAgents(next)
+      const next = agents.filter((a) => a.id !== id)
+      setAgents(next)
       if (activeId === id) {
         saveActive(PRESET_AGENTS[0].id)
       }
@@ -109,15 +124,15 @@ export function useAgents() {
       const { error } = await supabase.from('agents').delete().eq('id', id)
       if (error) console.error(error)
     },
-    [customAgents, activeId, saveActive],
+    [agents, activeId, saveActive],
   )
 
   return {
     isMounted,
     isLoading,
-    agents: allAgents,
+    agents,
     visibleAgents,
-    customAgents,
+    customAgents: agents, // keep for backward compat
     activeAgent,
     activeId,
     setActiveId: saveActive,

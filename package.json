@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "multi-agents": "cd autogen_server && source venv/bin/activate && python server.py",
     "build": "next build",
     "start": "next start",
     "lint": "eslint src --ext .ts,.tsx",

@@ -2,6 +2,7 @@
 
 import { useState, useRef, useCallback } from 'react'
 import type { ChatMessage } from '@/features/chat/types'
+import { getUserId } from '@/features/chat/lib/storage'
 
 interface UseChatStreamReturn {
   messages: ChatMessage[]
@@ -17,6 +18,7 @@ interface UseChatStreamOptions {
   onMessagesChange?: (messages: ChatMessage[]) => void
   modelId?: string
   systemPrompt?: string
+  agentId?: string
 }
 
 export function useChatStream(options: UseChatStreamOptions = {}): UseChatStreamReturn {
@@ -72,6 +74,8 @@ export function useChatStream(options: UseChatStreamOptions = {}): UseChatStream
             messages: history,
             model: options.modelId,
             systemPrompt: options.systemPrompt,
+            agentId: options.agentId,
+            userId: getUserId(),
           }),
           signal: abortRef.current.signal,
         })

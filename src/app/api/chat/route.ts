@@ -3,7 +3,8 @@ import { DEFAULT_MODEL_ID } from '@/shared/lib/models'
 import { getZapierMCPClient, getAI_SDKTools } from '@/shared/lib/mcp-client'
 import { checkRateLimit } from '@/shared/lib/rate-limit'
 import { z } from 'zod'
-import { streamText, stepCountIs, tool } from 'ai'
+import { streamText, generateText, stepCountIs, tool } from 'ai'
+import { supabase } from '@/shared/lib/supabase'
 import type { ModelMessage } from 'ai'
 import { queryKnowledgeBase } from '@/shared/lib/rag-query'
 
@@ -14,6 +15,8 @@ const requestSchema = z.object({
   messages: z.array(z.record(z.string(), z.unknown())).min(1),
   model: z.string().optional(),
   systemPrompt: z.string().optional(),
+  agentId: z.string().optional(),
+  userId: z.string().optional(),
 })
 
 const createSupportTicketParameters = z.object({
@@ -39,7 +42,20 @@ export async function POST(req: Request) {
 
   try {
     const body = await req.json()
-    const { messages, model, systemPrompt } = requestSchema.parse(body)
+    const { messages, model, systemPrompt, agentId, userId } = requestSchema.parse(body)
+
+    let activeSystemPrompt = systemPrompt
+    if (agentId && userId) {
+      const { data } = await supabase
+        .from('agents')
+        .select('system_prompt')
+        .eq('id', agentId)
+        .eq('user_id', userId)
+        .single()
+      if (data?.system_prompt) {
+        activeSystemPrompt = data.system_prompt
+      }
+    }
 
     // Extract the last user message text (handles string or multi-part array content)
     const lastUserMsg = [...messages].reverse().find((m) => m['role'] === 'user')
@@ -96,6 +112,46 @@ ${payload}
 Tell the user you have filed a ticket and they can connect to a robust support agent.`
         },
       }),
+      update_my_instructions: tool({
+        description:
+          'CRITICAL: Call this tool IMMEDIATELY if the user tells you to change your personality, tells you to be more/less polite, gives you a new conversational rule, or says "stop being X". This permanently rewrites your system prompt. DO NOT simply reply in conversation; you MUST call this tool to apply the change to the database.',
+        parameters: z.object({
+          feedback: z
+            .string()
+            .describe(
+              'The user\'s feedback or new rule (e.g., "be more polite and use bullet points")',
+            ),
+        }),
+        // @ts-expect-error type inference bug
+        execute: async ({ feedback }) => {
+          if (!agentId || !userId)
+            return 'Error: Cannot update instructions without agentId and userId.'
+
+          const currentPrompt = activeSystemPrompt || 'You are a helpful assistant.'
+
+          const { text: newPrompt } = await generateText({
+            model: llmProvider(model || DEFAULT_MODEL_ID),
+            system:
+              'You are an expert prompt engineer. The user has given feedback on a system prompt. Your ONLY job is to rewrite the system prompt to obey the user. If the user tells the AI to be polite, REMOVE all rude/unhelpful instructions and REPLACE them with polite ones. Do NOT blend conflicting instructions. Output ONLY the raw new system prompt text. No markdown formatting, no explanations.',
+            prompt: `CURRENT PROMPT:\n${currentPrompt}\n\nUSER FEEDBACK:\n${feedback}\n\nRewrite the current prompt to incorporate the feedback.`,
+          })
+
+          const { error } = await supabase
+            .from('agents')
+            .update({ system_prompt: newPrompt })
+            .eq('id', agentId)
+            .eq('user_id', userId)
+            .select()
+
+          if (error) {
+            console.error('[DB Update Error]', error)
+            return 'Failed to save new instructions to database.'
+          }
+
+          activeSystemPrompt = newPrompt
+          return `Successfully updated your persistent system instructions in the database. Tell the user: "I've permanently updated my instructions and will follow your new rules."`
+        },
+      }),
     }
 
     const zapierTools = mcpResult.status === 'fulfilled' ? mcpResult.value : null
@@ -103,7 +159,7 @@ Tell the user you have filed a ticket and they can connect to a robust support a
 
     const result = await streamText({
       model: llmProvider(model || DEFAULT_MODEL_ID),
-      system: getSystemPrompt(systemPrompt, ragContext),
+      system: getSystemPrompt(activeSystemPrompt, ragContext),
       messages: messages as ModelMessage[],
       tools: Object.keys(tools).length > 0 ? tools : undefined,
       stopWhen: stepCountIs(3),
