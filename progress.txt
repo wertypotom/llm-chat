@@ -210,3 +210,14 @@ NEXT: Multi-Agent Phase 2 - UI Rendering
 - Typecheck ✓, Lint ✓, Tests 10/10 ✓
 
 NEXT: Context Priority Phase 1 - Intent Routing
+
+[2026-02-26] Multi-Agent REFACTORED: Custom TS → AutoGen Python Sidecar
+- autogen_server/server.py — FastAPI + AutoGen v0.4 RoundRobinGroupChat (Analyst ↔ Critic)
+- autogen_server/requirements.txt — autogen-agentchat, autogen-ext[openai], fastapi, uvicorn
+- Monkey-patched _add_usage for Abacus RouteLLM (returns None for token counts)
+- /api/multi-agent/route.ts — now proxies to Python sidecar on :8100
+- MultiAgentPanel.tsx — conversation-style chat bubbles (teal Analyst left, amber Critic right)
+- Deleted old multi-agent.ts + multi-agent.test.ts
+- Typecheck ✓, Lint ✓, Tests 5/5 ✓
+
+NEXT: PRD complete for hackathon scope (remaining items not required)
