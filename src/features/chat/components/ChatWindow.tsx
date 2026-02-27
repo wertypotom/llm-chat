@@ -13,6 +13,7 @@ import { ModelSelector } from './ModelSelector'
 import { AgentSelector } from './AgentSelector'
 import { AgentSettingsModal } from './AgentSettingsModal'
 import { SummarizePanel } from './SummarizePanel'
+import { MultiAgentPanel } from './MultiAgentPanel'
 import { useGlobalModel } from '@/features/chat/hooks/useGlobalModel'
 import { AVAILABLE_MODELS } from '@/shared/lib/models'
 import { useAgents } from '@/features/chat/hooks/useAgents'
@@ -40,6 +41,7 @@ export function ChatWindow({
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [showAgentModal, setShowAgentModal] = useState(false)
   const [showSummarize, setShowSummarize] = useState(false)
+  const [showMultiAgent, setShowMultiAgent] = useState(false)
 
   const { modelId, setModelId } = useGlobalModel()
   const {
@@ -177,9 +179,18 @@ export function ChatWindow({
           >
             📄 Summarize
           </button>
+          <button
+            className={`${styles.autoPlayBtn} ${showMultiAgent ? styles.autoPlayBtnOn : ''}`}
+            onClick={() => setShowMultiAgent((v) => !v)}
+            title="Multi-agent collaboration"
+            aria-pressed={showMultiAgent}
+          >
+            🤖 Multi-Agent
+          </button>
         </header>
 
         {showSummarize && <SummarizePanel />}
+        {showMultiAgent && <MultiAgentPanel modelId={modelId} />}
 
         <div className={styles.messages} role="log" aria-live="polite">
           {messages.length === 0 && (

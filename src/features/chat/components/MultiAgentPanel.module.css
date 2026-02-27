@@ -1,0 +1,222 @@
+.panel {
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--border);
+  background: var(--glass-bg, rgba(255 255 255 / 0.03));
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  animation: slideDown 0.2s ease;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.hint {
+  font-size: 0.75rem;
+  color: var(--text-muted, #888);
+  margin: 0;
+}
+
+/* Input row */
+.inputRow {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.queryInput {
+  flex: 1;
+  padding: 0.5rem 0.75rem;
+  border-radius: 8px;
+  border: 1px solid var(--border, #333);
+  background: rgba(255 255 255 / 0.04);
+  color: var(--text, #e2e8f0);
+  font-size: 0.82rem;
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.queryInput:focus {
+  border-color: var(--accent, #6366f1);
+}
+
+.queryInput::placeholder {
+  color: var(--text-muted, #666);
+}
+
+.submitBtn {
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  border: none;
+  background: linear-gradient(135deg, var(--accent, #6366f1), #818cf8);
+  color: #fff;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition:
+    opacity 0.15s,
+    transform 0.1s;
+}
+
+.submitBtn:hover:not(:disabled) {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+.submitBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Status */
+.status {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.8rem;
+  color: var(--text-muted, #888);
+}
+
+.statusError {
+  color: #f87171;
+}
+
+.spinner {
+  width: 14px;
+  height: 14px;
+  border: 2px solid var(--border, #444);
+  border-top-color: var(--accent, #6366f1);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  flex-shrink: 0;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Agent thoughts */
+.thoughts {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  max-height: 55vh;
+  overflow-y: auto;
+}
+
+.thought {
+  border-radius: 10px;
+  border: 1px solid var(--border, #333);
+  background: rgba(255 255 255 / 0.03);
+  overflow: hidden;
+  transition: border-color 0.2s;
+}
+
+.thought:last-child {
+  border-color: var(--accent, #6366f1);
+  background: rgba(99 102 241 / 0.06);
+}
+
+.thoughtHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  cursor: pointer;
+  user-select: none;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text, #e2e8f0);
+  transition: background 0.15s;
+}
+
+.thoughtHeader:hover {
+  background: rgba(255 255 255 / 0.04);
+}
+
+.roleIcon {
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+.roleName {
+  flex: 1;
+}
+
+.chevron {
+  font-size: 0.65rem;
+  color: var(--text-muted, #888);
+  transition: transform 0.2s;
+}
+
+.chevronOpen {
+  transform: rotate(180deg);
+}
+
+.thoughtBody {
+  padding: 0 0.75rem 0.75rem;
+  font-size: 0.8rem;
+  line-height: 1.6;
+  color: var(--text, #e2e8f0);
+  animation: fadeIn 0.15s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.thoughtBody p {
+  margin: 0 0 0.5rem;
+}
+
+.thoughtBody ul {
+  padding-left: 1.25rem;
+  margin: 0;
+}
+
+.thoughtBody li {
+  margin-bottom: 0.25rem;
+}
+
+/* Role-specific accent colors */
+.roleResearcher {
+  border-left: 3px solid #2dd4bf;
+}
+
+.roleReviewer {
+  border-left: 3px solid #fbbf24;
+}
+
+.roleResponder {
+  border-left: 3px solid var(--accent, #6366f1);
+}
+
+/* Final answer highlight */
+.finalAnswer {
+  border-color: var(--accent, #6366f1);
+  background: rgba(99 102 241 / 0.08);
+}
+
+.finalLabel {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--accent, #6366f1);
+  padding: 0.25rem 0.75rem 0;
+}
