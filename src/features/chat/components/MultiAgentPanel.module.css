@@ -106,117 +106,96 @@
   }
 }
 
-/* Agent thoughts */
-.thoughts {
+/* Conversation */
+.conversation {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0.75rem;
   max-height: 55vh;
   overflow-y: auto;
+  padding: 0.5rem 0;
 }
 
-.thought {
-  border-radius: 10px;
-  border: 1px solid var(--border, #333);
-  background: rgba(255 255 255 / 0.03);
-  overflow: hidden;
-  transition: border-color 0.2s;
-}
-
-.thought:last-child {
-  border-color: var(--accent, #6366f1);
-  background: rgba(99 102 241 / 0.06);
-}
-
-.thoughtHeader {
+.agentMsg {
   display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 0.75rem;
-  cursor: pointer;
-  user-select: none;
-  font-size: 0.78rem;
-  font-weight: 600;
-  color: var(--text, #e2e8f0);
-  transition: background 0.15s;
-}
-
-.thoughtHeader:hover {
-  background: rgba(255 255 255 / 0.04);
-}
-
-.roleIcon {
-  font-size: 1rem;
-  flex-shrink: 0;
-}
-
-.roleName {
-  flex: 1;
-}
-
-.chevron {
-  font-size: 0.65rem;
-  color: var(--text-muted, #888);
-  transition: transform 0.2s;
-}
-
-.chevronOpen {
-  transform: rotate(180deg);
-}
-
-.thoughtBody {
-  padding: 0 0.75rem 0.75rem;
-  font-size: 0.8rem;
-  line-height: 1.6;
-  color: var(--text, #e2e8f0);
-  animation: fadeIn 0.15s ease;
+  flex-direction: column;
+  max-width: 85%;
+  animation: fadeIn 0.2s ease;
 }
 
 @keyframes fadeIn {
   from {
     opacity: 0;
+    transform: translateY(4px);
   }
   to {
     opacity: 1;
+    transform: translateY(0);
   }
 }
 
-.thoughtBody p {
-  margin: 0 0 0.5rem;
+.agentLeft {
+  align-self: flex-start;
 }
 
-.thoughtBody ul {
+.agentRight {
+  align-self: flex-end;
+}
+
+.agentName {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--text-muted, #888);
+  margin-bottom: 0.25rem;
+  padding: 0 0.5rem;
+}
+
+.agentRight .agentName {
+  justify-content: flex-end;
+}
+
+.agentIcon {
+  font-size: 0.85rem;
+}
+
+.agentBubble {
+  padding: 0.6rem 0.85rem;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  line-height: 1.6;
+  color: var(--text, #e2e8f0);
+}
+
+.agentBubble p {
+  margin: 0 0 0.4rem;
+}
+
+.agentBubble p:last-child {
+  margin-bottom: 0;
+}
+
+.agentBubble ul {
   padding-left: 1.25rem;
   margin: 0;
 }
 
-.thoughtBody li {
-  margin-bottom: 0.25rem;
+.agentBubble li {
+  margin-bottom: 0.2rem;
 }
 
-/* Role-specific accent colors */
-.roleResearcher {
-  border-left: 3px solid #2dd4bf;
+/* Analyst — teal accent, left-aligned */
+.bubbleAnalyst {
+  background: rgba(45 212 191 / 0.1);
+  border: 1px solid rgba(45 212 191 / 0.25);
+  border-radius: 12px 12px 12px 2px;
 }
 
-.roleReviewer {
-  border-left: 3px solid #fbbf24;
-}
-
-.roleResponder {
-  border-left: 3px solid var(--accent, #6366f1);
-}
-
-/* Final answer highlight */
-.finalAnswer {
-  border-color: var(--accent, #6366f1);
-  background: rgba(99 102 241 / 0.08);
-}
-
-.finalLabel {
-  font-size: 0.65rem;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: var(--accent, #6366f1);
-  padding: 0.25rem 0.75rem 0;
+/* Critic — amber accent, right-aligned */
+.bubbleCritic {
+  background: rgba(251 191 36 / 0.1);
+  border: 1px solid rgba(251 191 36 / 0.25);
+  border-radius: 12px 12px 2px 12px;
 }
