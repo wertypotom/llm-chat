@@ -11,6 +11,7 @@ interface UseChatStreamReturn {
   isLoading: boolean
   error: string | null
   sendMessage: (text: string) => Promise<void>
+  setMessages: React.Dispatch<React.SetStateAction<ChatMessage[]>>
 }
 
 interface UseChatStreamOptions {
@@ -141,5 +142,5 @@ export function useChatStream(options: UseChatStreamOptions = {}): UseChatStream
     [messages, isLoading, options],
   )
 
-  return { messages, input, setInput, isLoading, error, sendMessage }
+  return { messages, input, setInput, isLoading, error, sendMessage, setMessages }
 }

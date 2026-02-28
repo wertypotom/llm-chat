@@ -60,7 +60,7 @@ export function ChatWindow({
     isMounted,
   } = useAgents()
 
-  const { messages, input, setInput, isLoading, error, sendMessage } = useChatStream({
+  const { messages, setMessages, input, setInput, isLoading, error, sendMessage } = useChatStream({
     initialMessages: session.messages,
     onMessagesChange,
     modelId,
@@ -76,7 +76,11 @@ export function ChatWindow({
       content: text,
       createdAt: new Date(),
     }
-    onMessagesChange([...messages, newMessage])
+    setMessages((prev) => {
+      const next = [...prev, newMessage]
+      onMessagesChange(next)
+      return next
+    })
   }
 
   const {

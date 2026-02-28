@@ -21,7 +21,7 @@ export function ChatOverlay({ onMessagesChange }: Props) {
   const bottomRef = useRef<HTMLDivElement>(null)
   const prevLoadingRef = useRef(false)
 
-  const { messages, input, setInput, isLoading, error, sendMessage } = useChatStream({
+  const { messages, setMessages, input, setInput, isLoading, error, sendMessage } = useChatStream({
     onMessagesChange,
   })
   const { speak } = useTTS()
@@ -30,7 +30,6 @@ export function ChatOverlay({ onMessagesChange }: Props) {
   const handleTranscript = (role: 'user' | 'assistant', text: string) => {
     // Append the realtime transcript to the local messages state
     // so that when the call ends, the history is visible.
-    // In a real app, you'd want to handle message IDs more robustly.
     const newMessage: ChatMessage = {
       id: crypto.randomUUID(),
       role,
@@ -38,18 +37,11 @@ export function ChatOverlay({ onMessagesChange }: Props) {
       createdAt: new Date(),
     }
 
-    // We need to pass this up to the parent page.tsx to actually save to Supabase
-    if (onMessagesChange) {
-      // We can't easily get the *current* messages array here without adding it to deps
-      // or using a setMessages callback if useChatStream provided one.
-      // For this demo, since useChatStream doesn't expose `setMessages` natively that accepts functional updates,
-      // we'll rely on the parent or we mutate our local copy if necessary.
-      // *Correction*: useChatStream's `messages` is accessible.
-
-      onMessagesChange([...messages, newMessage])
-    }
-    // Note: To make the UI update immediately, we should ideally ensure `useChatStream` can append messages.
-    // For simplicity, we'll append to the standard API if possible, or just let `onMessagesChange` handle persistence.
+    setMessages((prev) => {
+      const next = [...prev, newMessage]
+      if (onMessagesChange) onMessagesChange(next)
+      return next
+    })
   }
 
   const {

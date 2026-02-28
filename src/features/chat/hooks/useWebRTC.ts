@@ -39,6 +39,15 @@ export function useWebRTC({
   const audioCtxRef = useRef<AudioContext | null>(null)
   const [analyserNode, setAnalyserNode] = useState<AnalyserNode | null>(null)
 
+  // Keep latest callbacks in refs to avoid stale closures during the long-lived WebRTC connection
+  const onTranscriptRef = useRef(onTranscript)
+  const pageContextFnRef = useRef(pageContextFn)
+
+  useEffect(() => {
+    onTranscriptRef.current = onTranscript
+    pageContextFnRef.current = pageContextFn
+  }, [onTranscript, pageContextFn])
+
   const stopCall = useCallback(() => {
     if (pcRef.current) {
       pcRef.current.close()
@@ -67,7 +76,16 @@ export function useWebRTC({
       setError(null)
 
       // 1. Get ephemeral token
-      const tokenRes = await fetch('/api/session')
+      const tokenRes = await fetch('/api/session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          instructions: pageContextFn
+            ? 'You are a helpful assistant guiding the user through a job application form. I will send you JSON payload updates indicating which fields on the form are currently filled and which are empty. You should politely guide the user, tell them what is missing, and answer questions. Keep your responses extremely concise and conversational, as you are on a live phone call. Do not use markdown.'
+            : undefined,
+        }),
+      })
+
       if (!tokenRes.ok) throw new Error('Failed to get session token')
       const { client_secret } = await tokenRes.json()
 
@@ -106,8 +124,8 @@ export function useWebRTC({
         setIsConnected(true)
         setIsConnecting(false)
         // Send initial context
-        if (pageContextFn) {
-          const context = pageContextFn()
+        if (pageContextFnRef.current) {
+          const context = pageContextFnRef.current()
           dc.send(
             JSON.stringify({
               type: 'session.update',
@@ -123,14 +141,14 @@ export function useWebRTC({
         try {
           const event = JSON.parse(e.data)
           // Handle transcripts sent by OpenAI over WebRTC
-          if (event.type === 'response.audio_transcript.done' && onTranscript) {
-            onTranscript('assistant', event.transcript)
+          if (event.type === 'response.audio_transcript.done' && onTranscriptRef.current) {
+            onTranscriptRef.current('assistant', event.transcript)
           }
           if (
             event.type === 'conversation.item.input_audio_transcription.completed' &&
-            onTranscript
+            onTranscriptRef.current
           ) {
-            onTranscript('user', event.transcript)
+            onTranscriptRef.current('user', event.transcript)
           }
         } catch (err) {
           console.error('Failed to parse data channel message:', err)
@@ -164,7 +182,7 @@ export function useWebRTC({
       setError(err.message || 'Call failed')
       stopCall()
     }
-  }, [stopCall, pageContextFn, onTranscript])
+  }, [stopCall])
 
   const toggleMute = useCallback(() => {
     if (mediaStreamRef.current) {
