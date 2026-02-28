@@ -39,20 +39,46 @@ export function MultiAgentPanel({ modelId }: Props) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ query: q }),
       })
-      const data = (await res.json()) as {
-        messages?: AgentMsg[]
-        error?: unknown
+
+      if (!res.ok) {
+        throw new Error('Failed to start discussion (Server Error)')
       }
-      if (!res.ok || !data.messages?.length) {
-        const errMsg =
-          typeof data.error === 'string'
-            ? data.error
-            : Array.isArray(data.error)
-              ? 'Validation error'
-              : 'No response from agents'
-        throw new Error(errMsg)
+
+      if (!res.body) {
+        throw new Error('ReadableStream not yet supported in this browser.')
       }
-      setMessages(data.messages)
+
+      const reader = res.body.getReader()
+      const decoder = new TextDecoder()
+      let buffer = ''
+
+      while (true) {
+        const { done, value } = await reader.read()
+        if (done) break
+
+        buffer += decoder.decode(value, { stream: true })
+        const events = buffer.split('\n\n')
+
+        // Keep the last chunk in the buffer if it doesn't end with \n\n
+        buffer = events.pop() ?? ''
+
+        for (const event of events) {
+          if (event.startsWith('data: ')) {
+            const dataStr = event.slice(6)
+            try {
+              const parsed = JSON.parse(dataStr)
+              if (parsed.done) {
+                setState('done')
+              } else if (parsed.agent && parsed.content) {
+                setMessages((prev) => [...prev, { agent: parsed.agent, content: parsed.content }])
+              }
+            } catch (err) {
+              console.error('Failed to parse SSE JSON:', err)
+            }
+          }
+        }
+      }
+
       setState('done')
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to run multi-agent')

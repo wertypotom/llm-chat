@@ -34,14 +34,24 @@ export async function POST(req: Request) {
 
     if (!res.ok) {
       const text = await res.text()
-      console.error('[MultiAgent API] AutoGen error:', text)
+      try {
+        console.error('[MultiAgent API] AutoGen error:', text)
+      } catch {
+        /* ignore */
+      }
       return Response.json({ error: 'AutoGen server error' }, { status: 502 })
     }
 
-    const data = await res.json()
-    console.log(`[MultiAgent API] Complete. ${data.messages?.length ?? 0} messages.`)
+    console.log(`[MultiAgent API] Starting SSE stream proxy...`)
 
-    return Response.json(data, { status: 200 })
+    return new Response(res.body, {
+      status: 200,
+      headers: {
+        'Content-Type': 'text/event-stream',
+        'Cache-Control': 'no-cache, no-transform',
+        Connection: 'keep-alive',
+      },
+    })
   } catch (err) {
     if (err instanceof z.ZodError) {
       return Response.json({ error: err.issues }, { status: 400 })

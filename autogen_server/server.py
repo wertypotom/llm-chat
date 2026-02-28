@@ -8,7 +8,9 @@ import os
 from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
+import json
 
 from autogen_agentchat.agents import AssistantAgent
 from autogen_agentchat.teams import RoundRobinGroupChat
@@ -105,18 +107,23 @@ async def chat(req: ChatRequest):
         termination_condition=termination,
     )
 
-    messages: list[AgentMsg] = []
+    async def stream_generator():
+        async for msg in team.run_stream(task=req.query):
+            # Check if this is the final TaskResult or an interim agent message
+            if hasattr(msg, 'messages'):
+                # This is a TaskResult (end of stream), we can just break or yield a done signal
+                yield 'data: {"done": true}\n\n'
+                break
+                
+            if getattr(msg, 'source', 'user') == 'user':
+                continue
+                
+            content = msg.content if isinstance(msg.content, str) else str(msg.content)
+            if content.strip():
+                payload = json.dumps({"agent": msg.source, "content": content})
+                yield f"data: {payload}\n\n"
 
-    result = await team.run(task=req.query)
-
-    for msg in result.messages:
-        if msg.source == "user":
-            continue
-        content = msg.content if isinstance(msg.content, str) else str(msg.content)
-        if content.strip():
-            messages.append(AgentMsg(agent=msg.source, content=content))
-
-    return ChatResponse(messages=messages)
+    return StreamingResponse(stream_generator(), media_type="text/event-stream")
 
 
 if __name__ == "__main__":
