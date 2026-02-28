@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, type FormEvent } from 'react'
+import { useState, useRef, type FormEvent } from 'react'
 import ReactMarkdown from 'react-markdown'
 import styles from './MultiAgentPanel.module.css'
 
@@ -20,6 +20,7 @@ export function MultiAgentPanel({ modelId }: Props) {
   const [query, setQuery] = useState('')
   const [messages, setMessages] = useState<AgentMsg[]>([])
   const [error, setError] = useState('')
+  const abortRef = useRef<AbortController | null>(null)
 
   // suppress unused var lint — modelId reserved for future model selection passthrough
   void modelId
@@ -34,10 +35,13 @@ export function MultiAgentPanel({ modelId }: Props) {
     setError('')
 
     try {
+      abortRef.current = new AbortController()
+
       const res = await fetch('/api/multi-agent', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ query: q }),
+        signal: abortRef.current.signal,
       })
 
       if (!res.ok) {
@@ -81,8 +85,20 @@ export function MultiAgentPanel({ modelId }: Props) {
 
       setState('done')
     } catch (err) {
+      if (err instanceof Error && err.name === 'AbortError') {
+        console.log('Stream aborted by user')
+        setState('done')
+        return
+      }
       setError(err instanceof Error ? err.message : 'Failed to run multi-agent')
       setState('error')
+    }
+  }
+
+  function stopDiscussion() {
+    if (abortRef.current) {
+      abortRef.current.abort()
+      abortRef.current = null
     }
   }
 
@@ -163,13 +179,23 @@ export function MultiAgentPanel({ modelId }: Props) {
             onChange={(e) => setQuery(e.target.value)}
             disabled={state === 'loading'}
           />
-          <button
-            className={styles.submitBtn}
-            type="submit"
-            disabled={state === 'loading' || !query.trim()}
-          >
-            {state === 'loading' ? 'Thinking…' : 'Start Discussion ▶'}
-          </button>
+          {state === 'loading' ? (
+            <button
+              className={styles.submitBtn}
+              type="button"
+              onClick={stopDiscussion}
+              style={{ background: '#ef4444' }}
+              title="Stop Discussion"
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                <rect x="6" y="6" width="12" height="12" rx="2" />
+              </svg>
+            </button>
+          ) : (
+            <button className={styles.submitBtn} type="submit" disabled={!query.trim()}>
+              Start Discussion ▶
+            </button>
+          )}
         </form>
       </div>
     </div>

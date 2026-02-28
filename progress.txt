@@ -246,3 +246,7 @@ NEXT: Testing / Voice Call Phase 3
 - Modified AutoGen server.py to stream yielding chunks
 - Next.js API now proxies the ReadableStream directly
 - MultiAgentPanel uses Server-Sent Events pattern to append messages progressively
+
+[2026-02-27] Task COMPLETE: Added a Stop button to the multi-agent UI
+- Bound an AbortController signal to the API fetch request
+- Display a red square Stop button instead of the send button when loading
