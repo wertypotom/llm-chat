@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useRef, FormEvent } from 'react'
+import type { ChatSession } from '@/features/chat/types'
 import { useChatStream } from '@/features/chat/hooks/useChatStream'
 import { useTTS } from '@/features/chat/hooks/useTTS'
 import { useVoiceInput } from '@/features/chat/hooks/useVoiceInput'
