@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState, type ChangeEvent, type FormEvent } from 'react'
-import type { ChatSession } from '@/features/chat/types'
+import type { ChatSession, ChatMessage } from '@/features/chat/types'
 import { useChatStream } from '@/features/chat/hooks/useChatStream'
 import { useTTS } from '@/features/chat/hooks/useTTS'
 import { useAutoPlayTTS } from '@/features/chat/hooks/useAutoPlayTTS'
@@ -14,6 +14,8 @@ import { AgentSelector } from './AgentSelector'
 import { AgentSettingsModal } from './AgentSettingsModal'
 import { SummarizePanel } from './SummarizePanel'
 import { MultiAgentPanel } from './MultiAgentPanel'
+import { LiveCallUI } from './LiveCallUI'
+import { useWebRTC } from '@/features/chat/hooks/useWebRTC'
 import { useGlobalModel } from '@/features/chat/hooks/useGlobalModel'
 import { AVAILABLE_MODELS } from '@/shared/lib/models'
 import { useAgents } from '@/features/chat/hooks/useAgents'
@@ -64,6 +66,32 @@ export function ChatWindow({
     modelId,
     systemPrompt: activeAgent?.systemPrompt,
     agentId: activeAgent?.id,
+  })
+
+  // Append realtime WEBRTC transcripts into the chat history
+  const handleTranscript = (role: 'user' | 'assistant', text: string) => {
+    const newMessage: ChatMessage = {
+      id: crypto.randomUUID(),
+      role,
+      content: text,
+      createdAt: new Date(),
+    }
+    onMessagesChange([...messages, newMessage])
+  }
+
+  const {
+    isConnected,
+    isConnecting,
+    error: rtcError,
+    startCall,
+    stopCall,
+    toggleMute,
+    isMuted,
+    analyserNode,
+  } = useWebRTC({
+    onTranscript: handleTranscript,
+    // Note: We don't pass pageContextFn here because the main chat
+    // is general purpose, not tied to the Apply page form.
   })
 
   const { speak } = useTTS()
@@ -191,6 +219,20 @@ export function ChatWindow({
           >
             📄 Summarize
           </button>
+          {!isConnected && !isConnecting && (
+            <button
+              className={styles.autoPlayBtn}
+              onClick={startCall}
+              title="Start a real-time voice call"
+              style={{
+                background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
+                color: 'white',
+                border: 'none',
+              }}
+            >
+              📞 Live Call
+            </button>
+          )}
           <button
             className={`${styles.autoPlayBtn} ${showMultiAgent ? styles.autoPlayBtnOn : ''}`}
             onClick={() => setShowMultiAgent((v) => !v)}
@@ -204,24 +246,38 @@ export function ChatWindow({
         {showSummarize && <SummarizePanel />}
         {showMultiAgent && <MultiAgentPanel modelId={modelId} />}
 
-        <div className={styles.messages} role="log" aria-live="polite">
-          {messages.length === 0 && (
-            <p className={styles.empty}>Send a message to start chatting…</p>
-          )}
-          {messages.map((m) => (
-            <MessageBubble
-              key={m.id}
-              id={m.id}
-              role={m.role}
-              content={m.content}
-              agent={activeAgent}
-              onConnectSupport={(agentId) => setActiveAgentId(agentId)}
+        {isConnected || isConnecting ? (
+          <div style={{ flex: 1, position: 'relative', marginTop: '1rem' }}>
+            <LiveCallUI
+              analyserNode={analyserNode}
+              isConnected={isConnected}
+              isConnecting={isConnecting}
+              error={rtcError}
+              isMuted={isMuted}
+              onMute={toggleMute}
+              onHangUp={stopCall}
             />
-          ))}
-          {isLoading && messages.at(-1)?.role !== 'assistant' && <TypingIndicator />}
-          {error && <p className={styles.error}>Error: {error}</p>}
-          <div ref={bottomRef} />
-        </div>
+          </div>
+        ) : (
+          <div className={styles.messages} role="log" aria-live="polite">
+            {messages.length === 0 && (
+              <p className={styles.empty}>Send a message to start chatting…</p>
+            )}
+            {messages.map((m) => (
+              <MessageBubble
+                key={m.id}
+                id={m.id}
+                role={m.role}
+                content={m.content}
+                agent={activeAgent}
+                onConnectSupport={(agentId) => setActiveAgentId(agentId)}
+              />
+            ))}
+            {isLoading && messages.at(-1)?.role !== 'assistant' && <TypingIndicator />}
+            {error && <p className={styles.error}>Error: {error}</p>}
+            <div ref={bottomRef} />
+          </div>
+        )}
 
         <ChatInput
           value={input}
