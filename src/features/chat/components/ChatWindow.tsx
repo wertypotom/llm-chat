@@ -12,7 +12,6 @@ import { ModelSelector } from './ModelSelector'
 import { AgentSelector } from './AgentSelector'
 import { AgentSettingsModal } from './AgentSettingsModal'
 import { SummarizePanel } from './SummarizePanel'
-import { MultiAgentPanel } from './MultiAgentPanel'
 import { LiveCallUI } from './LiveCallUI'
 import { useWebRTC } from '@/features/chat/hooks/useWebRTC'
 import { useGlobalModel } from '@/features/chat/hooks/useGlobalModel'
@@ -44,7 +43,6 @@ export function ChatWindow({
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [showAgentModal, setShowAgentModal] = useState(false)
   const [showSummarize, setShowSummarize] = useState(false)
-  const [showMultiAgent, setShowMultiAgent] = useState(false)
 
   const { modelId, setModelId } = useGlobalModel()
   const {
@@ -223,18 +221,17 @@ export function ChatWindow({
             📄 Summarize
           </button>
 
-          <button
-            className={`${styles.autoPlayBtn} ${showMultiAgent ? styles.autoPlayBtnOn : ''}`}
-            onClick={() => setShowMultiAgent((v) => !v)}
-            title="Multi-agent collaboration"
-            aria-pressed={showMultiAgent}
+          <a
+            href="/multi-agent"
+            className={styles.autoPlayBtn}
+            title="Go to Multi-Agent Panel"
+            style={{ textDecoration: 'none' }}
           >
             🤖 Multi-Agent
-          </button>
+          </a>
         </header>
 
         {showSummarize && <SummarizePanel />}
-        {showMultiAgent && <MultiAgentPanel modelId={modelId} />}
 
         {isConnected || isConnecting ? (
           <div style={{ flex: 1, position: 'relative', marginTop: '1rem' }}>

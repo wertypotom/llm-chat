@@ -237,3 +237,7 @@ NEXT: Testing / Voice Call Phase 3
 - Implemented wavy TypingIndicator in MessageBubble.tsx
 
 [2026-02-27] Task COMPLETE: Relocated Live Call button from ChatWindow header down into ChatInput, sitting next to Send Message
+
+[2026-02-27] Task COMPLETE: Migrated Multi-Agent into standalone '/multi-agent' page route
+- Refactored MultiAgentPanel for full screen CSS layout
+- Replaced inline component state in ChatWindow with an anchor link
