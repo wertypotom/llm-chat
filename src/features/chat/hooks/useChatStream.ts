@@ -67,6 +67,12 @@ export function useChatStream(options: UseChatStreamOptions = {}): UseChatStream
           )
         }, 3000)
 
+        // Capture current DOM state for context
+        const pageContext =
+          typeof document !== 'undefined'
+            ? await import('@/features/chat/lib/page-context').then((m) => m.capturePageState())
+            : []
+
         const res = await fetch('/api/chat', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -76,6 +82,7 @@ export function useChatStream(options: UseChatStreamOptions = {}): UseChatStream
             systemPrompt: options.systemPrompt,
             agentId: options.agentId,
             userId: getUserId(),
+            pageContext,
           }),
           signal: abortRef.current.signal,
         })

@@ -221,3 +221,13 @@ NEXT: Context Priority Phase 1 - Intent Routing
 - Typecheck ✓, Lint ✓, Tests 5/5 ✓
 
 NEXT: PRD complete for hackathon scope (remaining items not required)
+
+[2026-02-27] Task COMPLETE: Voice Assisted Job Application Demo (Page Context + Voice UI)
+- src/features/chat/lib/page-context.ts — capturePageState() extracts DOM inputs
+- src/app/api/stt/route.ts — OpenAI Whisper API integration
+- src/features/chat/components/ChatOverlay.tsx — conversational UI with useVoiceInput hook
+- src/app/api/chat/route.ts — dynamically injects pageContext into System Prompt
+- src/app/apply/page.tsx — dummy job form with overlay attached
+- Typecheck passed, Lint passed, E2E ready.
+
+NEXT: Testing / Voice Call Phase 3

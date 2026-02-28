@@ -17,6 +17,7 @@ const requestSchema = z.object({
   systemPrompt: z.string().optional(),
   agentId: z.string().optional(),
   userId: z.string().optional(),
+  pageContext: z.array(z.record(z.string(), z.unknown())).optional(),
 })
 
 const createSupportTicketParameters = z.object({
@@ -42,7 +43,8 @@ export async function POST(req: Request) {
 
   try {
     const body = await req.json()
-    const { messages, model, systemPrompt, agentId, userId } = requestSchema.parse(body)
+    const { messages, model, systemPrompt, agentId, userId, pageContext } =
+      requestSchema.parse(body)
 
     let activeSystemPrompt = systemPrompt
     if (agentId && userId) {
@@ -55,6 +57,13 @@ export async function POST(req: Request) {
       if (data?.system_prompt) {
         activeSystemPrompt = data.system_prompt
       }
+    }
+
+    if (pageContext && pageContext.length > 0) {
+      const formattedContext = JSON.stringify(pageContext, null, 2)
+      activeSystemPrompt = activeSystemPrompt
+        ? `${activeSystemPrompt}\n\n[PAGE CONTEXT]\nThe user is currently looking at a webpage with the following form fields. You can see what they have filled in so far based on 'value'. Use this to assist them:\n\`\`\`json\n${formattedContext}\n\`\`\``
+        : `You are a helpful assistant. [PAGE CONTEXT]\nThe user is currently looking at a webpage with the following form fields. You can see what they have filled in so far based on 'value'. Use this to assist them:\n\`\`\`json\n${formattedContext}\n\`\`\``
     }
 
     // Extract the last user message text (handles string or multi-part array content)

@@ -301,7 +301,7 @@
       "Serialize relevant DOM information (e.g., focused input, filled resume fields) into a clean format",
       "Ensure this runs efficiently without causing React render loops"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",
@@ -311,7 +311,7 @@
       "Append page context to the backend system prompt seamlessly",
       "Test user asking 'What should I put in this field?' and verify accurate response"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "infrastructure",
@@ -321,7 +321,7 @@
       "Integrate Speech-To-Text (e.g., Whisper API) to transcribe incoming audio",
       "Map transcribed text to the existing text-based LLM chat flow"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",
@@ -331,7 +331,7 @@
       "Send generated audio file back through the Telegram/WhatsApp API",
       "Handle API rate limits and file size constraints for voice assets"
     ],
-    "passes": false
+    "passes": true
   },
   {
     "category": "functional",
