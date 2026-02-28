@@ -59,14 +59,7 @@ export function useChatStream(options: UseChatStreamOptions = {}): UseChatStream
           content: m.content,
         }))
 
-        // Show "using tools" indicator while waiting for multi-step completion
-        const thinkingTimer = setTimeout(() => {
-          setMessages((prev) =>
-            prev.map((m) =>
-              m.id === assistantId && !m.content ? { ...m, content: '⏳ Using tools...' } : m,
-            ),
-          )
-        }, 3000)
+        // (Removed thinkingTimer to allow initial empty content to trigger TypingIndicator)
 
         // Capture current DOM state for context
         const pageContext =
@@ -87,8 +80,6 @@ export function useChatStream(options: UseChatStreamOptions = {}): UseChatStream
           }),
           signal: abortRef.current.signal,
         })
-
-        clearTimeout(thinkingTimer)
 
         if (!res.ok || !res.body) {
           const body = await res.json().catch(() => ({ error: 'Unknown error' }))

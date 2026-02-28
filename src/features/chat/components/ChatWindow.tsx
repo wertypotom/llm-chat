@@ -7,7 +7,6 @@ import { useTTS } from '@/features/chat/hooks/useTTS'
 import { useAutoPlayTTS } from '@/features/chat/hooks/useAutoPlayTTS'
 import { MessageBubble } from './MessageBubble'
 import { ChatInput } from './ChatInput'
-import { TypingIndicator } from './TypingIndicator'
 import { Sidebar } from './Sidebar'
 import { ModelSelector } from './ModelSelector'
 import { AgentSelector } from './AgentSelector'
@@ -277,7 +276,6 @@ export function ChatWindow({
                 onConnectSupport={(agentId) => setActiveAgentId(agentId)}
               />
             ))}
-            {isLoading && messages.at(-1)?.role !== 'assistant' && <TypingIndicator />}
             {error && <p className={styles.error}>Error: {error}</p>}
             <div ref={bottomRef} />
           </div>

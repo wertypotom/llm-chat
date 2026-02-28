@@ -6,6 +6,7 @@ import ReactMarkdown, { Components } from 'react-markdown'
 import { useTTS } from '@/features/chat/hooks/useTTS'
 import { TicketCard } from './TicketCard'
 import { Visualizer } from './Visualizer'
+import { TypingIndicator } from './TypingIndicator'
 import styles from './MessageBubble.module.css'
 
 interface Props {
@@ -87,7 +88,11 @@ export const MessageBubble: FC<Props> = ({ id, role, content, agent, onConnectSu
   return (
     <div className={`${styles.wrapper} ${isUser ? styles.user : styles.assistant}`}>
       <div className={`${styles.bubble} ${isUser ? styles.bubbleUser : styles.bubbleAssistant}`}>
-        <ReactMarkdown components={components}>{content}</ReactMarkdown>
+        {!isUser && !content ? (
+          <TypingIndicator />
+        ) : (
+          <ReactMarkdown components={components}>{content}</ReactMarkdown>
+        )}
         {!isUser && content && (
           <div style={{ display: 'flex', alignItems: 'center', marginTop: '8px' }}>
             <button

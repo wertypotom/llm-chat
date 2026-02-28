@@ -8,7 +8,6 @@ import { useVoiceInput } from '@/features/chat/hooks/useVoiceInput'
 import { useWebRTC } from '@/features/chat/hooks/useWebRTC'
 import { capturePageState } from '@/features/chat/lib/page-context'
 import { MessageBubble } from './MessageBubble'
-import { TypingIndicator } from './TypingIndicator'
 import { LiveCallUI } from './LiveCallUI'
 import styles from './ChatOverlay.module.css'
 
@@ -233,7 +232,6 @@ export function ChatOverlay({ onMessagesChange }: Props) {
                     Transcribing your voice...
                   </div>
                 )}
-                {isLoading && messages.at(-1)?.role !== 'assistant' && <TypingIndicator />}
                 {error && <p style={{ color: 'red', fontSize: '0.8rem' }}>Error: {error}</p>}
                 <div ref={bottomRef} />
               </div>
