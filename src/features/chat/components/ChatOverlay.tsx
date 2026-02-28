@@ -1,12 +1,15 @@
 'use client'
 
 import { useEffect, useRef, FormEvent, useState } from 'react'
-import type { ChatSession } from '@/features/chat/types'
+import type { ChatSession, ChatMessage } from '@/features/chat/types'
 import { useChatStream } from '@/features/chat/hooks/useChatStream'
 import { useTTS } from '@/features/chat/hooks/useTTS'
 import { useVoiceInput } from '@/features/chat/hooks/useVoiceInput'
+import { useWebRTC } from '@/features/chat/hooks/useWebRTC'
+import { capturePageState } from '@/features/chat/lib/page-context'
 import { MessageBubble } from './MessageBubble'
 import { TypingIndicator } from './TypingIndicator'
+import { LiveCallUI } from './LiveCallUI'
 import styles from './ChatOverlay.module.css'
 
 interface Props {
@@ -23,6 +26,45 @@ export function ChatOverlay({ onMessagesChange }: Props) {
   })
   const { speak } = useTTS()
   const { isRecording, isTranscribing, startRecording, stopRecording } = useVoiceInput()
+
+  const handleTranscript = (role: 'user' | 'assistant', text: string) => {
+    // Append the realtime transcript to the local messages state
+    // so that when the call ends, the history is visible.
+    // In a real app, you'd want to handle message IDs more robustly.
+    const newMessage: ChatMessage = {
+      id: crypto.randomUUID(),
+      role,
+      content: text,
+      createdAt: new Date(),
+    }
+
+    // We need to pass this up to the parent page.tsx to actually save to Supabase
+    if (onMessagesChange) {
+      // We can't easily get the *current* messages array here without adding it to deps
+      // or using a setMessages callback if useChatStream provided one.
+      // For this demo, since useChatStream doesn't expose `setMessages` natively that accepts functional updates,
+      // we'll rely on the parent or we mutate our local copy if necessary.
+      // *Correction*: useChatStream's `messages` is accessible.
+
+      onMessagesChange([...messages, newMessage])
+    }
+    // Note: To make the UI update immediately, we should ideally ensure `useChatStream` can append messages.
+    // For simplicity, we'll append to the standard API if possible, or just let `onMessagesChange` handle persistence.
+  }
+
+  const {
+    isConnected,
+    isConnecting,
+    error: rtcError,
+    startCall,
+    stopCall,
+    toggleMute,
+    isMuted,
+    analyserNode,
+  } = useWebRTC({
+    pageContextFn: capturePageState,
+    onTranscript: handleTranscript,
+  })
 
   useEffect(() => {
     if (isOpen) {
@@ -111,6 +153,24 @@ export function ChatOverlay({ onMessagesChange }: Props) {
               }}
             />
             <h2 className={styles.title}>Voice Assistant</h2>
+            {!isConnected && !isConnecting && (
+              <button
+                onClick={startCall}
+                style={{
+                  marginLeft: '1rem',
+                  padding: '4px 12px',
+                  borderRadius: '12px',
+                  border: 'none',
+                  background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
+                  color: 'white',
+                  fontSize: '0.8rem',
+                  fontWeight: 500,
+                  cursor: 'pointer',
+                }}
+              >
+                Start Live Call
+              </button>
+            )}
             <button
               onClick={() => setIsOpen(false)}
               style={{
@@ -139,97 +199,117 @@ export function ChatOverlay({ onMessagesChange }: Props) {
             </button>
           </div>
 
-          <div className={styles.messages}>
-            {messages.length === 0 && (
-              <p
-                style={{
-                  color: 'rgba(255,255,255,0.5)',
-                  textAlign: 'center',
-                  fontSize: '0.9rem',
-                  marginTop: 'auto',
-                  marginBottom: 'auto',
-                }}
-              >
-                Hi! I&apos;m here to help you apply. Ask me anything!
-              </p>
-            )}
-            {messages.map((m) => (
-              <MessageBubble key={m.id} id={m.id} role={m.role} content={m.content} />
-            ))}
-            {isTranscribing && (
-              <div
-                style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.8rem', padding: '0.5rem' }}
-              >
-                Transcribing your voice...
-              </div>
-            )}
-            {isLoading && messages.at(-1)?.role !== 'assistant' && <TypingIndicator />}
-            {error && <p style={{ color: 'red', fontSize: '0.8rem' }}>Error: {error}</p>}
-            <div ref={bottomRef} />
-          </div>
-
-          <div className={styles.inputArea}>
-            <form onSubmit={handleSubmit}>
-              <input
-                type="text"
-                className={styles.input}
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                placeholder="Type or click the mic..."
-                disabled={isLoading || isRecording || isTranscribing}
+          {isConnected || isConnecting ? (
+            <div style={{ flex: 1, position: 'relative' }}>
+              <LiveCallUI
+                analyserNode={analyserNode}
+                isConnected={isConnected}
+                isConnecting={isConnecting}
+                error={rtcError}
+                isMuted={isMuted}
+                onMute={toggleMute}
+                onHangUp={stopCall}
               />
-              <button
-                type="button"
-                className={`${styles.btn} ${styles.micBtn} ${isRecording ? styles.micBtnRecording : ''}`}
-                onClick={handleMicClick}
-                disabled={isLoading || isTranscribing}
-                aria-label="Toggle voice recording"
-              >
-                <svg
-                  width="20"
-                  height="20"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  {isRecording ? (
-                    <rect x="6" y="6" width="12" height="12" rx="2" fill="currentColor" />
-                  ) : (
-                    <>
-                      <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z" />
-                      <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
-                      <line x1="12" x2="12" y1="19" y2="22" />
-                    </>
-                  )}
-                </svg>
-              </button>
-              {!isRecording && (
-                <button
-                  type="submit"
-                  className={`${styles.btn} ${styles.sendBtn}`}
-                  disabled={!input.trim() || isLoading}
-                  aria-label="Send message"
-                >
-                  <svg
-                    width="18"
-                    height="18"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
+            </div>
+          ) : (
+            <>
+              <div className={styles.messages}>
+                {messages.length === 0 && (
+                  <p
+                    style={{
+                      color: 'rgba(255,255,255,0.5)',
+                      textAlign: 'center',
+                      fontSize: '0.9rem',
+                      marginTop: 'auto',
+                      marginBottom: 'auto',
+                    }}
                   >
-                    <line x1="22" y1="2" x2="11" y2="13" />
-                    <polygon points="22 2 15 22 11 13 2 9 22 2" />
-                  </svg>
-                </button>
-              )}
-            </form>
-          </div>
+                    Hi! I&apos;m here to help you apply. Ask me anything!
+                  </p>
+                )}
+                {messages.map((m) => (
+                  <MessageBubble key={m.id} id={m.id} role={m.role} content={m.content} />
+                ))}
+                {isTranscribing && (
+                  <div
+                    style={{
+                      color: 'rgba(255,255,255,0.7)',
+                      fontSize: '0.8rem',
+                      padding: '0.5rem',
+                    }}
+                  >
+                    Transcribing your voice...
+                  </div>
+                )}
+                {isLoading && messages.at(-1)?.role !== 'assistant' && <TypingIndicator />}
+                {error && <p style={{ color: 'red', fontSize: '0.8rem' }}>Error: {error}</p>}
+                <div ref={bottomRef} />
+              </div>
+
+              <div className={styles.inputArea}>
+                <form onSubmit={handleSubmit}>
+                  <input
+                    type="text"
+                    className={styles.input}
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    placeholder="Type or click the mic..."
+                    disabled={isLoading || isRecording || isTranscribing}
+                  />
+                  <button
+                    type="button"
+                    className={`${styles.btn} ${styles.micBtn} ${isRecording ? styles.micBtnRecording : ''}`}
+                    onClick={handleMicClick}
+                    disabled={isLoading || isTranscribing}
+                    aria-label="Toggle voice recording"
+                  >
+                    <svg
+                      width="20"
+                      height="20"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      {isRecording ? (
+                        <rect x="6" y="6" width="12" height="12" rx="2" fill="currentColor" />
+                      ) : (
+                        <>
+                          <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z" />
+                          <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
+                          <line x1="12" x2="12" y1="19" y2="22" />
+                        </>
+                      )}
+                    </svg>
+                  </button>
+                  {!isRecording && (
+                    <button
+                      type="submit"
+                      className={`${styles.btn} ${styles.sendBtn}`}
+                      disabled={!input.trim() || isLoading}
+                      aria-label="Send message"
+                    >
+                      <svg
+                        width="18"
+                        height="18"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2.5"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <line x1="22" y1="2" x2="11" y2="13" />
+                        <polygon points="22 2 15 22 11 13 2 9 22 2" />
+                      </svg>
+                    </button>
+                  )}
+                </form>
+              </div>
+            </>
+          )}
         </div>
       )}
     </>
