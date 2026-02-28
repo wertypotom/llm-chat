@@ -1,20 +1,9 @@
 .wrapper {
   display: flex;
   justify-content: flex-start;
-  padding: 2px 0;
-}
-
-.bubble {
-  display: flex;
   align-items: center;
   gap: 5px;
-  background: var(--color-assistant-bubble);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius);
-  border-bottom-left-radius: var(--radius-sm);
-  padding: 12px 18px;
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  padding: 8px 4px;
 }
 
 .dot {

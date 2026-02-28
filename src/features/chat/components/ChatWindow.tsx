@@ -222,20 +222,7 @@ export function ChatWindow({
           >
             📄 Summarize
           </button>
-          {!isConnected && !isConnecting && (
-            <button
-              className={styles.autoPlayBtn}
-              onClick={startCall}
-              title="Start a real-time voice call"
-              style={{
-                background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
-                color: 'white',
-                border: 'none',
-              }}
-            >
-              📞 Live Call
-            </button>
-          )}
+
           <button
             className={`${styles.autoPlayBtn} ${showMultiAgent ? styles.autoPlayBtnOn : ''}`}
             onClick={() => setShowMultiAgent((v) => !v)}
@@ -286,6 +273,9 @@ export function ChatWindow({
           onChange={handleInputChange}
           onSubmit={handleSubmit}
           isLoading={isLoading}
+          isConnected={isConnected}
+          isConnecting={isConnecting}
+          onStartCall={startCall}
         />
       </div>
 

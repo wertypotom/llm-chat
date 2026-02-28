@@ -235,3 +235,5 @@ NEXT: Testing / Voice Call Phase 3
 [2026-02-27] Task COMPLETE: Replaced 'Using Tools' text with 3-dot Loading Animation
 - Removed setTimeout from useChatStream.tsx
 - Implemented wavy TypingIndicator in MessageBubble.tsx
+
+[2026-02-27] Task COMPLETE: Relocated Live Call button from ChatWindow header down into ChatInput, sitting next to Send Message

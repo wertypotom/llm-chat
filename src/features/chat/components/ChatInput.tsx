@@ -8,9 +8,20 @@ interface Props {
   onChange: (e: ChangeEvent<HTMLTextAreaElement>) => void
   onSubmit: (e: FormEvent<HTMLFormElement>) => void
   isLoading: boolean
+  isConnected?: boolean
+  isConnecting?: boolean
+  onStartCall?: () => void
 }
 
-export const ChatInput: FC<Props> = ({ value, onChange, onSubmit, isLoading }) => {
+export const ChatInput: FC<Props> = ({
+  value,
+  onChange,
+  onSubmit,
+  isLoading,
+  isConnected,
+  isConnecting,
+  onStartCall,
+}) => {
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault()
@@ -33,6 +44,24 @@ export const ChatInput: FC<Props> = ({ value, onChange, onSubmit, isLoading }) =
         disabled={isLoading}
         aria-label="Chat message input"
       />
+      {!isConnected && !isConnecting && onStartCall && (
+        <button
+          type="button"
+          onClick={onStartCall}
+          className={styles.button}
+          disabled={isLoading}
+          aria-label="Start Live Call"
+          title="Start Live Call"
+          style={{
+            background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
+            color: 'white',
+            borderColor: 'transparent',
+            marginRight: '8px',
+          }}
+        >
+          📞
+        </button>
+      )}
       <button
         id="chat-send"
         type="submit"
