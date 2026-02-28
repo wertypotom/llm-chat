@@ -4,8 +4,16 @@ import { ChatWindow } from '@/features/chat/components/ChatWindow'
 import { useChatHistory } from '@/features/chat/hooks/useChatHistory'
 
 export default function Home() {
-  const { isMounted, sessions, activeId, activeSession, newSession, selectSession, updateSession } =
-    useChatHistory()
+  const {
+    isMounted,
+    sessions,
+    activeId,
+    activeSession,
+    newSession,
+    selectSession,
+    updateSession,
+    deleteSession,
+  } = useChatHistory()
 
   if (!isMounted) return null
 
@@ -17,6 +25,7 @@ export default function Home() {
       activeId={activeId}
       onNew={newSession}
       onSelect={selectSession}
+      onDelete={deleteSession}
       onMessagesChange={(msgs) => updateSession(activeSession.id, msgs)}
     />
   )

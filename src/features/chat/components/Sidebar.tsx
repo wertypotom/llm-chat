@@ -10,6 +10,7 @@ interface Props {
   activeId: string
   onSelect: (id: string) => void
   onNew: () => void
+  onDelete: (id: string) => void
   open: boolean
 }
 
@@ -31,7 +32,7 @@ function relativeTime(date: Date | string): string {
   return `${Math.floor(h / 24)}d ago`
 }
 
-export const Sidebar: FC<Props> = ({ sessions, activeId, onSelect, onNew, open }) => {
+export const Sidebar: FC<Props> = ({ sessions, activeId, onSelect, onNew, onDelete, open }) => {
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [isUploading, setIsUploading] = useState(false)
 
@@ -116,19 +117,64 @@ export const Sidebar: FC<Props> = ({ sessions, activeId, onSelect, onNew, open }
         </div>
         <ul className={styles.list} role="listbox" aria-label="Chat history">
           {sessions.map((s) => (
-            <li
-              key={s.id}
-              className={`${styles.item} ${s.id === activeId ? styles.active : ''}`}
-              onClick={() => onSelect(s.id)}
-              role="option"
-              aria-selected={s.id === activeId}
-              tabIndex={0}
-              onKeyDown={(e) => e.key === 'Enter' && onSelect(s.id)}
-            >
-              <span className={styles.itemTitle}>{sessionTitle(s)}</span>
-              <span className={styles.itemTime} suppressHydrationWarning>
-                {relativeTime(s.updatedAt)}
-              </span>
+            <li key={s.id} className={`${styles.item} ${s.id === activeId ? styles.active : ''}`}>
+              <div
+                className={styles.itemContent}
+                onClick={() => onSelect(s.id)}
+                role="option"
+                aria-selected={s.id === activeId}
+                tabIndex={0}
+                onKeyDown={(e) => e.key === 'Enter' && onSelect(s.id)}
+                style={{
+                  flex: 1,
+                  cursor: 'pointer',
+                  overflow: 'hidden',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '2px',
+                }}
+              >
+                <span className={styles.itemTitle}>{sessionTitle(s)}</span>
+                <span className={styles.itemTime} suppressHydrationWarning>
+                  {relativeTime(s.updatedAt)}
+                </span>
+              </div>
+              <button
+                className={styles.deleteBtn}
+                onClick={(e) => {
+                  e.stopPropagation()
+                  if (confirm('Delete this chat?')) onDelete(s.id)
+                }}
+                title="Delete chat"
+                aria-label={`Delete chat ${sessionTitle(s)}`}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: 'rgba(255,255,255,0.4)',
+                  cursor: 'pointer',
+                  padding: '4px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+                onMouseEnter={(e) => (e.currentTarget.style.color = '#ef4444')}
+                onMouseLeave={(e) => (e.currentTarget.style.color = 'rgba(255,255,255,0.4)')}
+              >
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M3 6h18"></path>
+                  <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
+                  <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
+                </svg>
+              </button>
             </li>
           ))}
         </ul>

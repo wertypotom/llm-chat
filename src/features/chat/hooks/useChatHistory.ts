@@ -115,6 +115,42 @@ export function useChatHistory() {
     [sessions],
   )
 
+  const deleteSession = useCallback(
+    async (id: string) => {
+      // 1. Remove from local state
+      const nextSessions = sessions.filter((s) => s.id !== id)
+
+      // 2. If we just deleted the active session, pick a new one or create one
+      let nextActiveId = activeId
+      let finalSessions = nextSessions
+
+      if (nextSessions.length === 0) {
+        const s = createSession()
+        finalSessions = [s]
+        nextActiveId = s.id
+
+        // Save the new one so the DB isn't completely empty
+        const userId = getUserId()
+        await supabase.from('chat_sessions').upsert({
+          id: s.id,
+          user_id: userId,
+          messages: s.messages,
+          updated_at: s.updatedAt.toISOString(),
+        })
+      } else if (id === activeId) {
+        nextActiveId = nextSessions[0].id
+      }
+
+      saveActiveId(nextActiveId)
+      setState({ sessions: finalSessions, activeId: nextActiveId })
+
+      // 3. Remove from Supabase
+      const { error } = await supabase.from('chat_sessions').delete().eq('id', id)
+      if (error) console.error('Failed to delete session:', error)
+    },
+    [sessions, activeId],
+  )
+
   return {
     isMounted,
     isLoading,
@@ -124,5 +160,6 @@ export function useChatHistory() {
     newSession,
     selectSession,
     updateSession,
+    deleteSession,
   }
 }

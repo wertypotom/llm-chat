@@ -25,6 +25,7 @@ interface Props {
   activeId: string
   onNew: () => void
   onSelect: (id: string) => void
+  onDelete: (id: string) => void
   onMessagesChange: (messages: ChatSession['messages']) => void
 }
 
@@ -34,6 +35,7 @@ export function ChatWindow({
   activeId,
   onNew,
   onSelect,
+  onDelete,
   onMessagesChange,
 }: Props) {
   const bottomRef = useRef<HTMLDivElement>(null)
@@ -105,6 +107,7 @@ export function ChatWindow({
         activeId={activeId}
         onSelect={onSelect}
         onNew={onNew}
+        onDelete={onDelete}
         open={sidebarOpen}
       />
       <div className={styles.root}>
@@ -144,6 +147,14 @@ export function ChatWindow({
             </svg>
           </div>
           <h1 className={styles.title}>LLM Chat</h1>
+          <a
+            href="/apply"
+            className={styles.autoPlayBtn}
+            title="Go to Voice Context Demo"
+            style={{ textDecoration: 'none', marginLeft: 'auto' }}
+          >
+            📋 Try Demo
+          </a>
           {isMounted && (
             <div style={{ display: 'flex', gap: '0.5rem' }}>
               <ModelSelector
