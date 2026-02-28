@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useRef, useCallback, useEffect } from 'react'
-import type { ChatSession } from '@/features/chat/types'
 
 interface UseWebRTCReturn {
   isConnected: boolean
@@ -16,15 +15,10 @@ interface UseWebRTCReturn {
 
 interface UseWebRTCProps {
   onTranscript?: (role: 'user' | 'assistant', text: string) => void
-  onMessagesChange?: (messages: ChatSession['messages']) => void
-  pageContextFn?: () => Record<string, any>
+  pageContextFn?: () => any[]
 }
 
-export function useWebRTC({
-  onTranscript,
-  onMessagesChange,
-  pageContextFn,
-}: UseWebRTCProps): UseWebRTCReturn {
+export function useWebRTC({ onTranscript, pageContextFn }: UseWebRTCProps): UseWebRTCReturn {
   const [isConnected, setIsConnected] = useState(false)
   const [isConnecting, setIsConnecting] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -102,7 +96,10 @@ export function useWebRTC({
         audioEl.srcObject = e.streams[0]
 
         // Connect specific audio stream to Web Audio API for visualization
-        const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)()
+        const audioCtx = new (
+          window.AudioContext ||
+          (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext
+        )()
         audioCtxRef.current = audioCtx
         const analyser = audioCtx.createAnalyser()
         analyser.fftSize = 256
@@ -177,12 +174,12 @@ export function useWebRTC({
 
       const answerSdp = await sdpResponse.text()
       await pc.setRemoteDescription({ type: 'answer', sdp: answerSdp })
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(err)
-      setError(err.message || 'Call failed')
+      setError(err instanceof Error ? err.message : 'Call failed')
       stopCall()
     }
-  }, [stopCall])
+  }, [stopCall, pageContextFn])
 
   const toggleMute = useCallback(() => {
     if (mediaStreamRef.current) {

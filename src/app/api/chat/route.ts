@@ -59,6 +59,8 @@ export async function POST(req: Request) {
       }
     }
 
+    let persistentSystemPrompt = activeSystemPrompt
+
     if (pageContext && pageContext.length > 0) {
       const formattedContext = JSON.stringify(pageContext, null, 2)
       activeSystemPrompt = activeSystemPrompt
@@ -136,7 +138,7 @@ Tell the user you have filed a ticket and they can connect to a robust support a
           if (!agentId || !userId)
             return 'Error: Cannot update instructions without agentId and userId.'
 
-          const currentPrompt = activeSystemPrompt || 'You are a helpful assistant.'
+          const currentPrompt = persistentSystemPrompt || 'You are a helpful assistant.'
 
           const { text: newPrompt } = await generateText({
             model: llmProvider(model || DEFAULT_MODEL_ID),
@@ -157,7 +159,7 @@ Tell the user you have filed a ticket and they can connect to a robust support a
             return 'Failed to save new instructions to database.'
           }
 
-          activeSystemPrompt = newPrompt
+          persistentSystemPrompt = newPrompt
           return `Successfully updated your persistent system instructions in the database. Tell the user: "I've permanently updated my instructions and will follow your new rules."`
         },
       }),

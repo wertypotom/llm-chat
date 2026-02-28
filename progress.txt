@@ -250,3 +250,5 @@ NEXT: Testing / Voice Call Phase 3
 [2026-02-27] Task COMPLETE: Added a Stop button to the multi-agent UI
 - Bound an AbortController signal to the API fetch request
 - Display a red square Stop button instead of the send button when loading
+
+[2026-02-27] Task COMPLETE: Fixed bug where pageContext was incorrectly saved to persistent system_prompt in DB during update_my_instructions tool call.
